@@ -51,9 +51,11 @@ body{
   inset:0;
   background:#080808;
   z-index:20;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   transition:opacity .5s ease;
 }
 
@@ -105,6 +107,7 @@ body{
   position:absolute;
   inset:0;
   opacity:0;
+
   transition:opacity .8s ease;
 
   background:
@@ -122,11 +125,11 @@ svg{
   inset:0;
 }
 
-/* 지도 확대 유지 */
+/* 지도 크기 */
 
 #map{
-  transform:scale(1.10);
-  transform-origin:50% 53%;
+  transform:scale(1);
+  transform-origin:50% 50%;
 }
 
 /* =========================
@@ -185,6 +188,65 @@ h1 span{
 }
 
 /* =========================
+   재생 속도 버튼
+   제목 아래 왼쪽 배치
+========================= */
+
+.speed-controls{
+  position:absolute;
+
+  top:23%;
+  left:8%;
+
+  z-index:9;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+
+  padding:6px 8px;
+
+  background:rgba(12,12,12,.88);
+  border:1px solid #333;
+  border-radius:8px;
+
+  white-space:nowrap;
+}
+
+.speed-controls span{
+  font-size:9px;
+  color:#888;
+  letter-spacing:1px;
+}
+
+.speed-buttons{
+  display:flex;
+  gap:5px;
+}
+
+.speed-buttons button{
+  background:#222;
+  color:#aaa;
+
+  border:1px solid #444;
+
+  padding:7px 9px;
+  border-radius:6px;
+
+  font-size:11px;
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+.speed-buttons button.active{
+  background:#ff3045;
+  color:white;
+  border-color:#ff3045;
+}
+
+/* =========================
    공연 정보
 ========================= */
 
@@ -193,12 +255,15 @@ h1 span{
   left:8%;
   right:8%;
   bottom:10%;
+
   z-index:2;
 
   min-height:105px;
+
   padding:17px 18px;
 
   background:rgba(14,14,14,.94);
+
   border-left:3px solid #ff3045;
 }
 
@@ -237,6 +302,7 @@ h1 span{
   left:8%;
   right:8%;
   bottom:6%;
+
   height:2px;
   background:#303030;
 }
@@ -255,79 +321,21 @@ h1 span{
   position:absolute;
   bottom:2%;
   width:100%;
+
   text-align:center;
+
   font-size:9px;
   color:#555;
   letter-spacing:2px;
 }
 
 /* =========================
-   재생 속도 버튼
-   지도 위쪽으로 이동
-========================= */
-
-.speed-controls{
-  position:absolute;
-
-  top:1.5%;
-  left:50%;
-  transform:translateX(-50%);
-
-  z-index:9;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  gap:7px;
-
-  padding:5px 8px;
-
-  background:rgba(12,12,12,.88);
-  border:1px solid #333;
-  border-radius:8px;
-
-  white-space:nowrap;
-}
-
-.speed-controls span{
-  font-size:9px;
-  color:#888;
-  letter-spacing:1px;
-}
-
-.speed-buttons{
-  display:flex;
-  gap:4px;
-}
-
-.speed-buttons button{
-  background:#222;
-  color:#aaa;
-
-  border:1px solid #444;
-
-  padding:6px 9px;
-  border-radius:5px;
-
-  font-size:10px;
-  font-weight:700;
-
-  cursor:pointer;
-}
-
-.speed-buttons button.active{
-  background:#ff3045;
-  color:white;
-  border-color:#ff3045;
-}
-
-/* =========================
-   하단 버튼
+   하단 조작 버튼
 ========================= */
 
 .controls{
   padding:20px;
+
   display:flex;
   gap:10px;
 }
@@ -335,9 +343,12 @@ h1 span{
 button{
   background:#ff3045;
   color:white;
+
   border:0;
+
   padding:13px 20px;
   border-radius:8px;
+
   font-weight:bold;
   cursor:pointer;
 }
@@ -353,7 +364,9 @@ button.secondary{
 #message{
   color:#888;
   font-size:12px;
+
   padding:10px 20px;
+
   text-align:center;
   line-height:1.7;
 }
@@ -484,7 +497,7 @@ button.secondary{
 
 
   <!-- =====================
-       재생 속도
+       재생 속도 버튼
   ===================== -->
 
   <div class="speed-controls">
@@ -524,7 +537,9 @@ button.secondary{
     ▶ 다시 재생
   </button>
 
-  <button class="secondary" onclick="fullscreen()">
+  <button
+    class="secondary"
+    onclick="fullscreen()">
     전체화면
   </button>
 
@@ -544,12 +559,15 @@ button.secondary{
 
 /* 한국 날짜 자동 계산 */
 
-const END = new Intl.DateTimeFormat("sv-SE",{
-  timeZone:"Asia/Seoul",
-  year:"numeric",
-  month:"2-digit",
-  day:"2-digit"
-})
+const END=new Intl.DateTimeFormat(
+  "sv-SE",
+  {
+    timeZone:"Asia/Seoul",
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit"
+  }
+)
 .format(new Date())
 .replaceAll("-",".");
 
@@ -557,7 +575,9 @@ const END = new Intl.DateTimeFormat("sv-SE",{
 /* 애니메이션 시간 */
 
 const INTRO=3200;
+
 const TRAVEL=32000;
+
 const OUTRO=4000;
 
 const TOTAL=INTRO+TRAVEL+OUTRO;
@@ -587,6 +607,15 @@ const coords={
 
   경기광주:[127.255,37.429],
 
+  부천:[126.766,37.503],
+  성남:[127.137,37.420],
+  평택:[127.112,36.992],
+  광명:[126.864,37.478],
+  김포:[126.716,37.615],
+  남양주:[127.216,37.636],
+  양주:[127.045,37.785],
+  포천:[127.200,37.895],
+
 
   /* 강원 */
 
@@ -594,6 +623,12 @@ const coords={
   원주:[127.946,37.342],
   삼척:[129.165,37.450],
   춘천:[127.730,37.881],
+
+  속초:[128.591,38.207],
+  동해:[129.114,37.524],
+  태백:[128.986,37.164],
+  홍천:[127.889,37.697],
+  평창:[128.390,37.370],
 
 
   /* 충청 */
@@ -609,9 +644,17 @@ const coords={
   괴산:[127.786,36.815],
   영동:[127.775,36.175],
 
-  /* 서천 추가 */
+  /* 누락 좌표 추가 */
 
-  서천:[126.691,36.077],
+  서천:[126.693,36.077],
+
+  충주:[127.925,36.991],
+  제천:[128.190,37.132],
+  논산:[127.098,36.187],
+  부여:[126.910,36.275],
+  홍성:[126.661,36.601],
+  서산:[126.450,36.784],
+  당진:[126.629,36.893],
 
 
   /* 전라 */
@@ -623,6 +666,13 @@ const coords={
   곡성:[127.292,35.282],
   전주:[127.148,35.824],
 
+  군산:[126.736,35.967],
+  익산:[126.958,35.948],
+  여수:[127.662,34.760],
+  목포:[126.392,34.811],
+  나주:[126.710,35.016],
+  남원:[127.390,35.416],
+
 
   /* 경상 */
 
@@ -633,6 +683,16 @@ const coords={
   울산:[129.311,35.539],
   함양:[127.725,35.520],
 
+  안동:[128.729,36.568],
+  경주:[129.224,35.856],
+  구미:[128.344,36.119],
+  창원:[128.681,35.228],
+  진주:[128.084,35.180],
+  김해:[128.889,35.228],
+  거제:[128.621,34.880],
+  통영:[128.434,34.854],
+  양산:[129.037,35.335],
+
 
   /* 제주 */
 
@@ -640,7 +700,7 @@ const coords={
   서귀포:[126.560,33.254],
 
 
-  /* 울릉도와 독도 */
+  /* 울릉도 / 독도 */
 
   울릉도:[130.905,37.484],
   독도:[131.869,37.242]
@@ -653,13 +713,17 @@ const coords={
 ========================= */
 
 let shows=[];
+
 let segments=[];
+
 let dots=[];
 
 let projection;
 
 let started=0;
+
 let raf=0;
+
 let lastIndex=-1;
 
 let playbackSpeed=1;
@@ -668,12 +732,15 @@ const NS="http://www.w3.org/2000/svg";
 
 
 /* =========================
-   SVG 생성
+   SVG 요소 생성
 ========================= */
 
 function el(tag,attrs,parent){
 
-  const node=document.createElementNS(NS,tag);
+  const node=document.createElementNS(
+    NS,
+    tag
+  );
 
   for(const [k,v] of Object.entries(attrs)){
 
@@ -689,119 +756,23 @@ function el(tag,attrs,parent){
 
 
 /* =========================
-   지역명 정리
-========================= */
-
-function normalizeCityToken(value){
-
-  let name=String(value||"")
-    .trim()
-    .replace(
-      /^[^가-힣A-Za-z0-9]+|[^가-힣A-Za-z0-9]+$/g,
-      ""
-    );
-
-  /*
-     이미 등록된 도시라면
-     이름을 변경하지 않음
-
-     특히 대구의 '구'가
-     제거되는 문제 방지
-  */
-
-  if(coords[name]){
-    return name;
-  }
-
-  /* 광역시 등의 행정 명칭 제거 */
-
-  name=name.replace(
-    /(특별자치도|특별자치시|광역시|특별시)$/,
-    ""
-  );
-
-  if(coords[name]){
-    return name;
-  }
-
-  if(name==="제주도"){
-    return "제주";
-  }
-
-  /* 시, 군, 구 제거 */
-
-  const short=name.replace(
-    /(시|군|구)$/,
-    ""
-  );
-
-  if(coords[short]){
-    return short;
-  }
-
-  return name;
-
-}
-
-
-/* =========================
    지역명 추출
 ========================= */
 
 function cityKey(region){
 
-  const raw=String(region||"")
-    .normalize("NFKC")
-    .replace(/[\u200B-\u200D\uFEFF]/g,"")
-    .trim();
-
-  if(!raw)return "";
-
-
-  /*
-     경기도 광주시와
-     광주광역시 구분
-  */
-
-  if(
-    /경기(?:도)?\s*광주(?:시)?/.test(raw) ||
-    /광주(?:시)?\s*\(?경기(?:도)?\)?/.test(raw)
-  ){
-    return "경기광주";
-  }
-
-
-  const tokens=raw
-    .replace(/[·ㆍ,/()（）\[\]|]/g," ")
+  const p=String(region||"")
+    .trim()
     .split(/\s+/)
     .filter(Boolean);
 
+  const normalize=name=>
+    name.replace(
+      /(특별자치시|특별자치도|광역시|특별시|자치시|시|군|구)$/,
+      ""
+    );
 
-  const normalized=tokens.map(
-    normalizeCityToken
-  );
-
-
-  /*
-     경기 광주가
-     별도 단어로 들어온 경우
-  */
-
-  const hasGyeonggi=tokens.some(
-    x=>/^(경기|경기도)$/.test(x)
-  );
-
-  if(
-    hasGyeonggi &&
-    normalized.includes("광주")
-  ){
-    return "경기광주";
-  }
-
-
-  /*
-     특별시 및 광역시
-  */
+  const first=normalize(p[0]||"");
 
   const metro=[
     "서울",
@@ -816,51 +787,57 @@ function cityKey(region){
   ];
 
 
-  const first=normalized[0]||"";
+  /* 경기도 광주와 광주광역시 구분 */
+
+  if(
+    /^(경기|경기도)$/.test(p[0]) &&
+    p.some(x=>normalize(x)==="광주")
+  ){
+
+    return "경기광주";
+
+  }
 
 
-  /*
-     제주 서귀포인 경우
-     서귀포를 우선
-  */
+  /* 제주 서귀포 구분 */
 
   if(
     first==="제주" &&
-    normalized.includes("서귀포")
+    p.some(x=>normalize(x)==="서귀포")
   ){
+
     return "서귀포";
+
   }
 
+
+  /* 광역시 */
 
   if(metro.includes(first)){
+
     return first;
+
   }
 
 
-  /*
-     나머지 지역은
-     뒤쪽 도시명부터 검색
-  */
+  /* 일반 시군 */
 
-  for(
-    const name of [...normalized].reverse()
-  ){
+  for(const token of [...p].reverse()){
+
+    const name=normalize(token);
 
     if(coords[name]){
+
       return name;
+
     }
 
   }
 
 
-  /*
-     마지막 단어 반환
-     미등록 도시 확인용
-  */
-
-  return normalized[
-    normalized.length-1
-  ]||"";
+  return normalize(
+    p[p.length-1]||""
+  );
 
 }
 
@@ -874,17 +851,17 @@ function dates(str){
   const normalized=String(str)
     .replace(/[–—~〜]/g,"-");
 
-
   const m=normalized.match(
     /^(\d{4})\.(\d{1,2})\.(\d{1,2})(?:\s*-\s*(?:(\d{4})\.)?(?:(\d{1,2})\.)?(\d{1,2}))?/
   );
-
 
   if(!m)return [];
 
 
   const year=Number(m[1]);
+
   const month=Number(m[2]);
+
   const day=Number(m[3]);
 
 
@@ -940,18 +917,18 @@ function dates(str){
 function makeCurve(a,b,index){
 
   const dx=b[0]-a[0];
+
   const dy=b[1]-a[1];
 
   const dist=Math.hypot(dx,dy);
 
 
-  /*
-     같은 위치에서는
-     이동 경로 생성하지 않음
-  */
+  /* 같은 위치는 선을 만들지 않음 */
 
   if(dist<2){
+
     return null;
+
   }
 
 
@@ -961,9 +938,12 @@ function makeCurve(a,b,index){
 
 
   const mx=(a[0]+b[0])/2;
+
   const my=(a[1]+b[1])/2;
 
+
   const nx=-dy/dist;
+
   const ny=dx/dist;
 
 
@@ -979,8 +959,7 @@ function makeCurve(a,b,index){
 /* =========================
    울릉도 / 독도 표시
 
-   이름 텍스트 없이
-   섬 모양만 표시
+   이름 없이 섬만 표시
 ========================= */
 
 function addIsland(name,location,land){
@@ -991,17 +970,19 @@ function addIsland(name,location,land){
 
 
   const x=xy[0];
+
   const y=xy[1];
 
 
   if(name==="독도"){
 
-    /* 독도 두 섬 표현 */
+    /* 독도 두 섬 */
 
     el("ellipse",{
 
       cx:x-3,
       cy:y,
+
       rx:3.5,
       ry:5,
 
@@ -1016,6 +997,7 @@ function addIsland(name,location,land){
 
       cx:x+4,
       cy:y+2,
+
       rx:2.5,
       ry:4,
 
@@ -1035,6 +1017,7 @@ function addIsland(name,location,land){
 
       cx:x,
       cy:y,
+
       rx:7,
       ry:9,
 
@@ -1045,6 +1028,78 @@ function addIsland(name,location,land){
     },land);
 
   }
+
+}
+
+
+/* =========================
+   작은 부속 섬 정리
+========================= */
+
+function simplifyFeature(feature,path){
+
+  const geometry=feature.geometry;
+
+  if(!geometry)return null;
+
+
+  if(geometry.type==="MultiPolygon"){
+
+    const polygons=geometry.coordinates.filter(
+      polygon=>{
+
+        const area=path.area({
+
+          type:"Polygon",
+          coordinates:polygon
+
+        });
+
+        return area>=100;
+
+      }
+    );
+
+
+    if(!polygons.length){
+
+      return null;
+
+    }
+
+
+    return {
+
+      type:"Feature",
+
+      properties:feature.properties||{},
+
+      geometry:{
+
+        type:"MultiPolygon",
+        coordinates:polygons
+
+      }
+
+    };
+
+  }
+
+
+  if(geometry.type==="Polygon"){
+
+    const area=path.area(feature);
+
+    if(area<100){
+
+      return null;
+
+    }
+
+  }
+
+
+  return feature;
 
 }
 
@@ -1064,7 +1119,9 @@ async function init(){
       ).then(r=>{
 
         if(!r.ok){
+
           throw Error("아카이브 연결 실패");
+
         }
 
         return r.text();
@@ -1077,7 +1134,9 @@ async function init(){
       ).then(r=>{
 
         if(!r.ok){
+
           throw Error("지도 연결 실패");
+
         }
 
         return r.json();
@@ -1092,7 +1151,7 @@ async function init(){
     ===================== */
 
     const match=source.match(
-      /const data\s*=\s*(\[[\s\S]*?\n\s*\];)/
+      /\bconst\s+data\s*=\s*(\[[\s\S]*?\])\s*;/
     );
 
 
@@ -1106,7 +1165,7 @@ async function init(){
 
 
     const records=Function(
-      "return "+match[1].slice(0,-1)
+      "return ("+match[1]+");"
     )();
 
 
@@ -1138,19 +1197,16 @@ async function init(){
 
 
       const isSolo=
-        /윤도현/.test(text)&&
+        /윤도현/.test(text) &&
         !isYoonHuhAhn;
 
 
-      /*
-         윤도현 솔로 공연 제외
-
-         YB 공연 포함
-         윤허안 공연 포함
-      */
+      /* 윤도현 솔로 공연 제외 */
 
       if(isSolo){
+
         continue;
+
       }
 
 
@@ -1159,25 +1215,16 @@ async function init(){
       const location=coords[city];
 
 
-      /*
-         좌표가 없는 지역은
-         안내 메시지에 표시
-      */
-
       if(!location){
 
-        missing.add(
-          String(region||"지역명 없음")
-        );
+        missing.add(region);
 
         continue;
 
       }
 
 
-      /*
-         윤허안 공연 구분
-      */
+      /* 윤허안 공연명 표시 */
 
       const eventTitle=
         isYoonHuhAhn &&
@@ -1186,23 +1233,31 @@ async function init(){
           :title;
 
 
-      /*
-         공연 날짜별로 등록
-      */
+      /* 날짜별 공연 생성 */
 
       for(const day of dates(date)){
 
-        if(day>END)continue;
+        if(day>END){
+
+          continue;
+
+        }
 
 
         shows.push({
 
           date:day,
+
           title:eventTitle,
+
           region,
+
           city,
+
           location,
+
           type,
+
           isYoonHuhAhn
 
         });
@@ -1218,7 +1273,8 @@ async function init(){
 
     shows.sort((a,b)=>
 
-      a.date.localeCompare(b.date)||
+      a.date.localeCompare(b.date) ||
+
       a.title.localeCompare(b.title)
 
     );
@@ -1251,10 +1307,7 @@ async function init(){
     const features=geo.features||[geo];
 
 
-    /*
-       울릉도와 독도를
-       지도 투영 범위에 포함
-    */
+    /* 울릉도 독도를 지도 범위에 포함 */
 
     const extendedGeo={
 
@@ -1275,6 +1328,7 @@ async function init(){
             coordinates:[
 
               coords.울릉도,
+
               coords.독도
 
             ]
@@ -1291,13 +1345,19 @@ async function init(){
 
 
     /* =====================
-       지도 투영
+       지도 크기 및 위치
+
+       제주도가 잘리지 않도록
+       전체 지도를 조금 축소
     ===================== */
 
     projection=d3.geoMercator()
       .fitExtent(
 
-        [[55,420],[845,1230]],
+        [
+          [100,430],
+          [800,1160]
+        ],
 
         extendedGeo
 
@@ -1306,19 +1366,36 @@ async function init(){
 
     const path=d3.geoPath(projection);
 
-
-    const land=document.getElementById(
-      "land"
-    );
+    const land=document.getElementById("land");
 
 
-    features.forEach(f=>{
+    /* =====================
+       육지 표시
+
+       작은 부속 섬 정리
+    ===================== */
+
+    features.forEach(feature=>{
+
+      const simplified=simplifyFeature(
+        feature,
+        path
+      );
+
+
+      if(!simplified){
+
+        return;
+
+      }
+
 
       el("path",{
 
-        d:path(f),
+        d:path(simplified),
 
         fill:"#252525",
+
         stroke:"#555",
 
         "stroke-width":"1.4"
@@ -1329,20 +1406,30 @@ async function init(){
 
 
     /* =====================
-       울릉도 / 독도
+       울릉도 / 독도 표시
+
+       텍스트 없음
     ===================== */
 
     addIsland(
+
       "울릉도",
+
       coords.울릉도,
+
       land
+
     );
 
 
     addIsland(
+
       "독도",
+
       coords.독도,
+
       land
+
     );
 
 
@@ -1368,6 +1455,7 @@ async function init(){
       const dot=el("circle",{
 
         cx:s.xy[0],
+
         cy:s.xy[1],
 
         r:5,
@@ -1382,14 +1470,12 @@ async function init(){
       dots.push(dot);
 
 
-      /*
-         첫 공연은
-         이전 이동 경로 없음
-      */
+      /* 첫 공연 */
 
       if(i===0){
 
         segments.push(null);
+
         return;
 
       }
@@ -1398,14 +1484,16 @@ async function init(){
       const previous=shows[i-1];
 
 
-      /*
-         같은 도시 연속 공연이면
-         고리 생성하지 않음
-      */
+      /* =====================
+         같은 도시 연속 공연
+
+         고리 제거
+      ===================== */
 
       if(s.city===previous.city){
 
         segments.push(null);
+
         return;
 
       }
@@ -1414,7 +1502,9 @@ async function init(){
       const d=makeCurve(
 
         previous.xy,
+
         s.xy,
+
         i
 
       );
@@ -1423,6 +1513,7 @@ async function init(){
       if(!d){
 
         segments.push(null);
+
         return;
 
       }
@@ -1458,6 +1549,7 @@ async function init(){
       segments.push({
 
         line,
+
         length
 
       });
@@ -1482,23 +1574,16 @@ async function init(){
 
 
     let msg=
-
       `${shows.length} SHOWS · `+
-
-      `${cityCount} CITIES · `+
-
-      `윤허안 ${yhaCount}회 포함`;
+      `${cityCount} CITIES`+
+      ` · 윤허안 ${yhaCount}회 포함`;
 
 
-    /*
-       좌표 미등록 지역은
-       실제로 존재할 경우만 안내
-    */
+    /* 등록되지 않은 도시 안내 */
 
     if(missing.size){
 
       msg+=
-
         ` · 좌표 미등록: ${
           [...missing].join(", ")
         }`;
@@ -1513,6 +1598,7 @@ async function init(){
     replay();
 
   }
+
 
   catch(err){
 
@@ -1535,6 +1621,7 @@ async function init(){
 function showInfo(index){
 
   const s=shows[index];
+
 
   if(!s)return;
 
@@ -1608,6 +1695,8 @@ function renderIntro(t){
       titleCount===title.length?".":"";
 
 
+  /* 지도 전환 */
+
   const intro=
     document.getElementById("intro");
 
@@ -1615,8 +1704,6 @@ function renderIntro(t){
   const mapScreen=
     document.getElementById("mapScreen");
 
-
-  /* 지도 화면 전환 */
 
   if(t>=2600){
 
@@ -1650,7 +1737,11 @@ function render(t){
   renderIntro(t);
 
 
-  if(t<INTRO)return;
+  if(t<INTRO){
+
+    return;
+
+  }
 
 
   const progress=Math.max(
@@ -1674,19 +1765,18 @@ function render(t){
 
   const index=Math.floor(position);
 
+
   const fraction=position-index;
 
 
-  /*
-     마지막 장면 여부
-  */
+  /* 마지막 장면 여부 */
 
   const isFinal=
     t>=INTRO+TRAVEL;
 
 
   /* =====================
-     공연 지점 표시
+     공연 위치 점 표시
   ===================== */
 
   dots.forEach((dot,i)=>{
@@ -1696,21 +1786,15 @@ function render(t){
 
     if(isFinal){
 
-      /*
-         마지막 화면에서는
-         모든 공연 지점 밝게
-      */
+      /* 마지막에는 모든 점 선명하게 */
 
-      opacity=1;
+      opacity=.95;
 
     }
 
     else if(i<=index){
 
-      /*
-         현재 지점은 밝게
-         지나간 지점은 흐리게
-      */
+      /* 현재 공연은 밝게 */
 
       opacity=i===index?1:.42;
 
@@ -1726,7 +1810,7 @@ function render(t){
 
 
   /* =====================
-     이동 경로 그리기
+     이동 경로 표시
   ===================== */
 
   segments.forEach((seg,i)=>{
@@ -1734,16 +1818,23 @@ function render(t){
     if(!seg)return;
 
 
-    /*
-       마지막 장면에서는
-       모든 경로를 밝게 표시
-    */
+    /* =====================
+       마지막 장면
+
+       모든 경로 선명하게
+    ===================== */
 
     if(isFinal){
 
       seg.line.setAttribute(
         "opacity",
         .95
+      );
+
+
+      seg.line.setAttribute(
+        "stroke-width",
+        3.2
       );
 
 
@@ -1771,6 +1862,8 @@ function render(t){
     }
 
 
+    /* 아직 지나지 않은 경로 */
+
     if(visible===0){
 
       seg.line.setAttribute(
@@ -1780,12 +1873,10 @@ function render(t){
 
     }
 
-    else if(visible<1){
 
-      /*
-         현재 그려지는 경로
-         선명한 빨간색
-      */
+    /* 현재 이동 중인 경로 */
+
+    else if(visible<1){
 
       seg.line.setAttribute(
         "opacity",
@@ -1794,12 +1885,14 @@ function render(t){
 
     }
 
-    else{
 
-      /*
-         지나간 경로는
-         시간이 지날수록 흐려짐
-      */
+    /* =====================
+       지나간 경로
+
+       시간이 지날수록 흐리게
+    ===================== */
+
+    else{
 
       const age=Math.max(
         0,
@@ -1835,18 +1928,17 @@ function render(t){
   ===================== */
 
   let point=
-
     shows[
-      Math.min(index,shows.length-1)
+      Math.min(
+        index,
+        shows.length-1
+      )
     ].xy;
 
 
   if(
-
     index<shows.length-1 &&
-
     fraction>0
-
   ){
 
     const seg=segments[index+1];
@@ -1855,7 +1947,9 @@ function render(t){
     if(seg){
 
       const p=seg.line.getPointAtLength(
+
         seg.length*fraction
+
       );
 
 
@@ -1865,10 +1959,7 @@ function render(t){
 
     else{
 
-      /*
-         같은 도시 연속 공연은
-         해당 위치에 머무름
-      */
+      /* 같은 도시 이동 없음 */
 
       point=shows[index+1].xy;
 
@@ -1878,7 +1969,7 @@ function render(t){
 
 
   /* =====================
-     빨간 점 빛나는 효과
+     현재 위치 빛나는 효과
   ===================== */
 
   const pulse=Math.sin(t/140)*4;
@@ -1921,7 +2012,9 @@ function render(t){
 
       "opacity",
 
-      id==="halo"?.2:1
+      isFinal
+        ?0
+        :(id==="halo"?.2:1)
 
     );
 
@@ -1941,7 +2034,10 @@ function render(t){
   );
 
 
-  if(current!==lastIndex){
+  if(
+    current!==lastIndex &&
+    !isFinal
+  ){
 
     showInfo(current);
 
@@ -1973,15 +2069,21 @@ function render(t){
       shows[shows.length-1].date;
 
 
+    /* 날짜 */
+
     document.getElementById("date")
       .textContent=
         firstDate+" — "+lastDate;
 
 
+    /* 제목 */
+
     document.getElementById("city")
       .textContent=
         "2026 YB ROAD.";
 
+
+    /* 도시 수 */
 
     const cityCount=
       new Set(
@@ -1989,17 +2091,22 @@ function render(t){
       ).size;
 
 
+    /* 공연 횟수 + 도시 수 */
+
     document.getElementById("event")
       .textContent=
-
         `${shows.length} SHOWS · ${cityCount} CITIES`;
 
 
+    /* 우측 공연 횟수 */
+
     document.getElementById("count")
       .textContent=
+        String(shows.length)
+          .padStart(2,"0");
 
-        String(shows.length).padStart(2,"0");
 
+    /* 마지막 화면 스타일 */
 
     document.getElementById("infoBox")
       .classList.add("final");
@@ -2049,7 +2156,7 @@ function tick(now){
 function setSpeed(speed,button){
 
   /*
-     재생 도중 속도를 바꿔도
+     재생 도중 속도를 변경해도
      현재 위치부터 이어서 재생
   */
 
@@ -2059,12 +2166,10 @@ function setSpeed(speed,button){
 
 
     const elapsed=
-
       (now-started)*playbackSpeed;
 
 
     started=
-
       now-elapsed/speed;
 
   }
@@ -2170,21 +2275,7 @@ function replay(){
 
 
   /* =====================
-     지도 점 초기화
-  ===================== */
-
-  dots.forEach(dot=>{
-
-    dot.setAttribute(
-      "opacity",
-      0
-    );
-
-  });
-
-
-  /* =====================
-     이동 경로 초기화
+     경로 초기화
   ===================== */
 
   segments.forEach(seg=>{
@@ -2204,9 +2295,19 @@ function replay(){
   });
 
 
-  /* =====================
-     현재 위치 점 초기화
-  ===================== */
+  /* 공연 위치 점 초기화 */
+
+  dots.forEach(dot=>{
+
+    dot.setAttribute(
+      "opacity",
+      0
+    );
+
+  });
+
+
+  /* 빛나는 점 초기화 */
 
   document.getElementById("active")
     .setAttribute("opacity",0);
@@ -2256,4 +2357,4 @@ init();
 </script>
 
 </body>
-  </html>
+</html>
