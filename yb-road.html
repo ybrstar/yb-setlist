@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>2026 YB ROAD.</title>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#080808;
+  color:white;
+  font-family:Arial,"Noto Sans KR",sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* 영상 화면 */
+
+#stage{
+  position:relative;
+  width:min(100vw,450px);
+  aspect-ratio:9/16;
+  background:#080808;
+  overflow:hidden;
+}
+
+/* 인트로 */
+
+#intro{
+  position:absolute;
+  inset:0;
+  background:#080808;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity .5s ease;
+}
+
+.intro-inner{
+  width:84%;
+}
+
+#introYear{
+  font-size:23px;
+  font-weight:700;
+  letter-spacing:4px;
+  color:#aaa;
+  height:38px;
+}
+
+.intro-title{
+  font-size:clamp(38px,11vw,57px);
+  font-weight:900;
+  letter-spacing:-2px;
+  white-space:nowrap;
+  line-height:1.3;
+}
