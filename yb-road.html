@@ -12,6 +12,10 @@
 
 <style>
 
+/* =========================
+   기본 설정
+========================= */
+
 *{
   box-sizing:border-box;
 }
@@ -102,6 +106,7 @@ body{
   inset:0;
   opacity:0;
   transition:opacity .8s ease;
+
   background:
     radial-gradient(
       ellipse at 50% 55%,
@@ -117,7 +122,7 @@ svg{
   inset:0;
 }
 
-/* 지도 확대 */
+/* 지도 확대 유지 */
 
 #map{
   transform:scale(1.10);
@@ -189,8 +194,10 @@ h1 span{
   right:8%;
   bottom:10%;
   z-index:2;
+
   min-height:105px;
   padding:17px 18px;
+
   background:rgba(14,14,14,.94);
   border-left:3px solid #ff3045;
 }
@@ -215,29 +222,10 @@ h1 span{
   line-height:1.5;
 }
 
-/* 이동 거리 */
-
-#distanceRow{
-  display:none;
-  margin-top:12px;
-  color:#ff3045;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:.5px;
-}
-
-#distanceNote{
-  display:none;
-  margin-top:7px;
-  color:#777;
-  font-size:9px;
-  line-height:1.5;
-}
-
 /* 마지막 화면 */
 
 .info.final{
-  padding:15px 18px;
+  padding:17px 18px;
 }
 
 /* =========================
@@ -259,6 +247,10 @@ h1 span{
   background:#ff3045;
 }
 
+/* =========================
+   하단 문구
+========================= */
+
 .footer{
   position:absolute;
   bottom:2%;
@@ -270,26 +262,30 @@ h1 span{
 }
 
 /* =========================
-   재생 속도
+   재생 속도 버튼
+   지도 위쪽으로 이동
 ========================= */
 
 .speed-controls{
   position:absolute;
-  top:28%;
+
+  top:1.5%;
   left:50%;
   transform:translateX(-50%);
+
   z-index:9;
 
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:9px;
 
-  padding:6px 9px;
+  gap:7px;
+
+  padding:5px 8px;
 
   background:rgba(12,12,12,.88);
   border:1px solid #333;
-  border-radius:9px;
+  border-radius:8px;
 
   white-space:nowrap;
 }
@@ -302,19 +298,21 @@ h1 span{
 
 .speed-buttons{
   display:flex;
-  gap:5px;
+  gap:4px;
 }
 
 .speed-buttons button{
   background:#222;
   color:#aaa;
+
   border:1px solid #444;
 
-  padding:7px 10px;
-  border-radius:6px;
+  padding:6px 9px;
+  border-radius:5px;
 
-  font-size:11px;
+  font-size:10px;
   font-weight:700;
+
   cursor:pointer;
 }
 
@@ -348,6 +346,10 @@ button.secondary{
   background:#252525;
 }
 
+/* =========================
+   데이터 안내
+========================= */
+
 #message{
   color:#888;
   font-size:12px;
@@ -363,7 +365,9 @@ button.secondary{
 
 <div id="stage">
 
-  <!-- 인트로 -->
+  <!-- =====================
+       인트로
+  ===================== -->
 
   <div id="intro">
 
@@ -372,7 +376,9 @@ button.secondary{
       <div id="introYear"></div>
 
       <div class="intro-title">
+
         <span id="introText"></span><span id="introDot"></span><span class="cursor"></span>
+
       </div>
 
     </div>
@@ -380,7 +386,9 @@ button.secondary{
   </div>
 
 
-  <!-- 지도 화면 -->
+  <!-- =====================
+       지도 화면
+  ===================== -->
 
   <div id="mapScreen">
 
@@ -456,16 +464,6 @@ button.secondary{
         2026년, 우리가 지나온 무대들
       </div>
 
-      <div id="distanceRow">
-        TOTAL DISTANCE ·
-        <span id="distanceValue">0 KM</span>
-      </div>
-
-      <div id="distanceNote">
-        * 공연 도시 중심점 간 직선거리 합산 추정치입니다.<br>
-        실제 이동 거리와는 다를 수 있습니다.
-      </div>
-
     </div>
 
 
@@ -485,7 +483,9 @@ button.secondary{
   </div>
 
 
-  <!-- 재생 속도 버튼 -->
+  <!-- =====================
+       재생 속도
+  ===================== -->
 
   <div class="speed-controls">
 
@@ -514,7 +514,9 @@ button.secondary{
 </div>
 
 
-<!-- 하단 조작 버튼 -->
+<!-- =====================
+     하단 조작 버튼
+===================== -->
 
 <div class="controls">
 
@@ -585,12 +587,14 @@ const coords={
 
   경기광주:[127.255,37.429],
 
+
   /* 강원 */
 
   강릉:[128.876,37.752],
   원주:[127.946,37.342],
   삼척:[129.165,37.450],
   춘천:[127.730,37.881],
+
 
   /* 충청 */
 
@@ -605,6 +609,11 @@ const coords={
   괴산:[127.786,36.815],
   영동:[127.775,36.175],
 
+  /* 서천 추가 */
+
+  서천:[126.691,36.077],
+
+
   /* 전라 */
 
   광주:[126.852,35.160],
@@ -613,6 +622,7 @@ const coords={
   순천:[127.489,34.950],
   곡성:[127.292,35.282],
   전주:[127.148,35.824],
+
 
   /* 경상 */
 
@@ -623,10 +633,12 @@ const coords={
   울산:[129.311,35.539],
   함양:[127.725,35.520],
 
+
   /* 제주 */
 
   제주:[126.532,33.500],
   서귀포:[126.560,33.254],
+
 
   /* 울릉도와 독도 */
 
@@ -652,8 +664,6 @@ let lastIndex=-1;
 
 let playbackSpeed=1;
 
-let totalDistance=0;
-
 const NS="http://www.w3.org/2000/svg";
 
 
@@ -666,7 +676,9 @@ function el(tag,attrs,parent){
   const node=document.createElementNS(NS,tag);
 
   for(const [k,v] of Object.entries(attrs)){
+
     node.setAttribute(k,v);
+
   }
 
   parent.appendChild(node);
@@ -677,45 +689,162 @@ function el(tag,attrs,parent){
 
 
 /* =========================
+   지역명 정리
+========================= */
+
+function normalizeCityToken(value){
+
+  let name=String(value||"")
+    .trim()
+    .replace(
+      /^[^가-힣A-Za-z0-9]+|[^가-힣A-Za-z0-9]+$/g,
+      ""
+    );
+
+  /*
+     이미 등록된 도시라면
+     이름을 변경하지 않음
+
+     특히 대구의 '구'가
+     제거되는 문제 방지
+  */
+
+  if(coords[name]){
+    return name;
+  }
+
+  /* 광역시 등의 행정 명칭 제거 */
+
+  name=name.replace(
+    /(특별자치도|특별자치시|광역시|특별시)$/,
+    ""
+  );
+
+  if(coords[name]){
+    return name;
+  }
+
+  if(name==="제주도"){
+    return "제주";
+  }
+
+  /* 시, 군, 구 제거 */
+
+  const short=name.replace(
+    /(시|군|구)$/,
+    ""
+  );
+
+  if(coords[short]){
+    return short;
+  }
+
+  return name;
+
+}
+
+
+/* =========================
    지역명 추출
 ========================= */
 
 function cityKey(region){
 
-  const p=String(region||"")
-    .trim()
-    .split(/\s+/);
+  const raw=String(region||"")
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .trim();
 
-  const normalize=name=>
-    name.replace(
-      /(특별자치시|특별자치도|광역시|특별시|자치시|시|군|구)$/,
-      ""
-    );
+  if(!raw)return "";
 
-  const first=normalize(p[0]||"");
 
-  const metro=[
-    "서울","인천","광주",
-    "대구","대전","부산",
-    "울산","세종","제주"
-  ];
-
-  /* 광주광역시와 경기도 광주 구분 */
+  /*
+     경기도 광주시와
+     광주광역시 구분
+  */
 
   if(
-    /^(경기|경기도)$/.test(p[0]) &&
-    p.some(x=>normalize(x)==="광주")
+    /경기(?:도)?\s*광주(?:시)?/.test(raw) ||
+    /광주(?:시)?\s*\(?경기(?:도)?\)?/.test(raw)
   ){
     return "경기광주";
   }
+
+
+  const tokens=raw
+    .replace(/[·ㆍ,/()（）\[\]|]/g," ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+
+  const normalized=tokens.map(
+    normalizeCityToken
+  );
+
+
+  /*
+     경기 광주가
+     별도 단어로 들어온 경우
+  */
+
+  const hasGyeonggi=tokens.some(
+    x=>/^(경기|경기도)$/.test(x)
+  );
+
+  if(
+    hasGyeonggi &&
+    normalized.includes("광주")
+  ){
+    return "경기광주";
+  }
+
+
+  /*
+     특별시 및 광역시
+  */
+
+  const metro=[
+    "서울",
+    "인천",
+    "광주",
+    "대구",
+    "대전",
+    "부산",
+    "울산",
+    "세종",
+    "제주"
+  ];
+
+
+  const first=normalized[0]||"";
+
+
+  /*
+     제주 서귀포인 경우
+     서귀포를 우선
+  */
+
+  if(
+    first==="제주" &&
+    normalized.includes("서귀포")
+  ){
+    return "서귀포";
+  }
+
 
   if(metro.includes(first)){
     return first;
   }
 
-  for(const token of [...p].reverse()){
 
-    const name=normalize(token);
+  /*
+     나머지 지역은
+     뒤쪽 도시명부터 검색
+  */
+
+  for(
+    const name of [...normalized].reverse()
+  ){
 
     if(coords[name]){
       return name;
@@ -723,7 +852,15 @@ function cityKey(region){
 
   }
 
-  return normalize(p[p.length-1]||"");
+
+  /*
+     마지막 단어 반환
+     미등록 도시 확인용
+  */
+
+  return normalized[
+    normalized.length-1
+  ]||"";
 
 }
 
@@ -737,21 +874,26 @@ function dates(str){
   const normalized=String(str)
     .replace(/[–—~〜]/g,"-");
 
+
   const m=normalized.match(
     /^(\d{4})\.(\d{1,2})\.(\d{1,2})(?:\s*-\s*(?:(\d{4})\.)?(?:(\d{1,2})\.)?(\d{1,2}))?/
   );
 
+
   if(!m)return [];
+
 
   const year=Number(m[1]);
   const month=Number(m[2]);
   const day=Number(m[3]);
+
 
   const start=Date.UTC(
     year,
     month-1,
     day
   );
+
 
   const end=m[6]
     ?Date.UTC(
@@ -761,13 +903,20 @@ function dates(str){
       )
     :start;
 
+
   if(end<start)return [];
 
   if(end-start>32*86400000)return [];
 
+
   const result=[];
 
-  for(let t=start;t<=end;t+=86400000){
+
+  for(
+    let t=start;
+    t<=end;
+    t+=86400000
+  ){
 
     result.push(
       new Date(t)
@@ -778,45 +927,8 @@ function dates(str){
 
   }
 
+
   return result;
-
-}
-
-
-/* =========================
-   직선거리 계산
-========================= */
-
-/*
-   두 도시의 위도와 경도를 이용해
-   구면상 최단거리 계산
-
-   단위: KM
-
-   실제 도로 이동거리와 다름
-*/
-
-function haversine(a,b){
-
-  const R=6371;
-
-  const toRad=d=>d*Math.PI/180;
-
-  const lat1=toRad(a[1]);
-  const lat2=toRad(b[1]);
-
-  const dLat=toRad(b[1]-a[1]);
-  const dLon=toRad(b[0]-a[0]);
-
-  const h=
-    Math.sin(dLat/2)**2+
-    Math.cos(lat1)*
-    Math.cos(lat2)*
-    Math.sin(dLon/2)**2;
-
-  return 2*R*Math.asin(
-    Math.sqrt(Math.min(1,h))
-  );
 
 }
 
@@ -832,21 +944,28 @@ function makeCurve(a,b,index){
 
   const dist=Math.hypot(dx,dy);
 
-  /* 같은 위치는 이동선 없음 */
+
+  /*
+     같은 위치에서는
+     이동 경로 생성하지 않음
+  */
 
   if(dist<2){
     return null;
   }
 
+
   const bend=
     Math.min(85,dist*.18)*
     (index%2?1:-1);
+
 
   const mx=(a[0]+b[0])/2;
   const my=(a[1]+b[1])/2;
 
   const nx=-dy/dist;
   const ny=dx/dist;
+
 
   return `
     M${a[0]},${a[1]}
@@ -859,6 +978,9 @@ function makeCurve(a,b,index){
 
 /* =========================
    울릉도 / 독도 표시
+
+   이름 텍스트 없이
+   섬 모양만 표시
 ========================= */
 
 function addIsland(name,location,land){
@@ -867,59 +989,62 @@ function addIsland(name,location,land){
 
   if(!xy)return;
 
+
   const x=xy[0];
   const y=xy[1];
 
-  /* 섬 표시 */
 
   if(name==="독도"){
 
+    /* 독도 두 섬 표현 */
+
     el("ellipse",{
+
       cx:x-3,
       cy:y,
       rx:3.5,
       ry:5,
+
       fill:"#555",
       stroke:"#888",
       "stroke-width":1
+
     },land);
 
+
     el("ellipse",{
+
       cx:x+4,
       cy:y+2,
       rx:2.5,
       ry:4,
+
       fill:"#555",
       stroke:"#888",
       "stroke-width":1
-    },land);
 
-  }else{
-
-    el("ellipse",{
-      cx:x,
-      cy:y,
-      rx:7,
-      ry:9,
-      fill:"#555",
-      stroke:"#888",
-      "stroke-width":1.2
     },land);
 
   }
 
-  /* 섬 이름 */
+  else{
 
-  const label=el("text",{
-    x:x-12,
-    y:y-13,
-    fill:"#aaa",
-    "font-size":19,
-    "font-weight":700,
-    "text-anchor":"end"
-  },land);
+    /* 울릉도 */
 
-  label.textContent=name;
+    el("ellipse",{
+
+      cx:x,
+      cy:y,
+      rx:7,
+      ry:9,
+
+      fill:"#555",
+      stroke:"#888",
+      "stroke-width":1.2
+
+    },land);
+
+  }
 
 }
 
@@ -946,6 +1071,7 @@ async function init(){
 
       }),
 
+
       fetch(
         "https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-topo-simple.json"
       ).then(r=>{
@@ -969,9 +1095,15 @@ async function init(){
       /const data\s*=\s*(\[[\s\S]*?\n\s*\];)/
     );
 
+
     if(!match){
-      throw Error("공연 데이터를 찾지 못했습니다.");
+
+      throw Error(
+        "공연 데이터를 찾지 못했습니다."
+      );
+
     }
+
 
     const records=Function(
       "return "+match[1].slice(0,-1)
@@ -984,6 +1116,7 @@ async function init(){
 
     const missing=new Set();
 
+
     for(const row of records){
 
       const [
@@ -994,33 +1127,57 @@ async function init(){
         type
       ]=row;
 
+
       const text=
         String(title||"")+" "+
         String(type||"");
 
+
       const isYoonHuhAhn=
         /윤허안/.test(text);
+
 
       const isSolo=
         /윤도현/.test(text)&&
         !isYoonHuhAhn;
 
-      /* 윤도현 솔로 공연만 제외 */
+
+      /*
+         윤도현 솔로 공연 제외
+
+         YB 공연 포함
+         윤허안 공연 포함
+      */
 
       if(isSolo){
         continue;
       }
 
+
       const city=cityKey(region);
 
       const location=coords[city];
 
+
+      /*
+         좌표가 없는 지역은
+         안내 메시지에 표시
+      */
+
       if(!location){
 
-        missing.add(region);
+        missing.add(
+          String(region||"지역명 없음")
+        );
+
         continue;
 
       }
+
+
+      /*
+         윤허안 공연 구분
+      */
 
       const eventTitle=
         isYoonHuhAhn &&
@@ -1028,9 +1185,15 @@ async function init(){
           ?"윤허안 · "+title
           :title;
 
+
+      /*
+         공연 날짜별로 등록
+      */
+
       for(const day of dates(date)){
 
         if(day>END)continue;
+
 
         shows.push({
 
@@ -1049,49 +1212,25 @@ async function init(){
     }
 
 
-    /* 날짜순 정렬 */
-
-    shows.sort((a,b)=>
-      a.date.localeCompare(b.date)||
-      a.title.localeCompare(b.title)
-    );
-
-    if(!shows.length){
-      throw Error("표시할 공연이 없습니다.");
-    }
-
-
     /* =====================
-       총 이동 거리 계산
+       날짜순 정렬
     ===================== */
 
-    totalDistance=0;
+    shows.sort((a,b)=>
 
-    shows.forEach((s,i)=>{
+      a.date.localeCompare(b.date)||
+      a.title.localeCompare(b.title)
 
-      if(i===0){
+    );
 
-        s.cumulativeKm=0;
-        return;
 
-      }
+    if(!shows.length){
 
-      const previous=shows[i-1];
+      throw Error(
+        "표시할 공연이 없습니다."
+      );
 
-      /* 같은 도시는 거리 추가 안 함 */
-
-      if(s.city!==previous.city){
-
-        totalDistance+=haversine(
-          previous.location,
-          s.location
-        );
-
-      }
-
-      s.cumulativeKm=totalDistance;
-
-    });
+    }
 
 
     /* =====================
@@ -1099,18 +1238,22 @@ async function init(){
     ===================== */
 
     const geo=topojson.feature(
+
       topology,
+
       topology.objects[
         Object.keys(topology.objects)[0]
       ]
+
     );
+
 
     const features=geo.features||[geo];
 
 
     /*
-       울릉도와 독도를 투영 범위에 포함
-       지도 밖으로 잘리지 않도록 처리
+       울릉도와 독도를
+       지도 투영 범위에 포함
     */
 
     const extendedGeo={
@@ -1122,18 +1265,24 @@ async function init(){
         ...features,
 
         {
+
           type:"Feature",
 
           geometry:{
+
             type:"MultiPoint",
 
             coordinates:[
+
               coords.울릉도,
               coords.독도
+
             ]
+
           },
 
           properties:{}
+
         }
 
       ]
@@ -1141,18 +1290,26 @@ async function init(){
     };
 
 
-    /* 확대된 지도 투영 */
+    /* =====================
+       지도 투영
+    ===================== */
 
     projection=d3.geoMercator()
       .fitExtent(
+
         [[55,420],[845,1230]],
+
         extendedGeo
+
       );
 
 
     const path=d3.geoPath(projection);
 
-    const land=document.getElementById("land");
+
+    const land=document.getElementById(
+      "land"
+    );
 
 
     features.forEach(f=>{
@@ -1160,8 +1317,10 @@ async function init(){
       el("path",{
 
         d:path(f),
+
         fill:"#252525",
         stroke:"#555",
+
         "stroke-width":"1.4"
 
       },land);
@@ -1169,13 +1328,16 @@ async function init(){
     });
 
 
-    /* 울릉도 / 독도 표시 */
+    /* =====================
+       울릉도 / 독도
+    ===================== */
 
     addIsland(
       "울릉도",
       coords.울릉도,
       land
     );
+
 
     addIsland(
       "독도",
@@ -1190,6 +1352,7 @@ async function init(){
 
     const routeLayer=
       document.getElementById("routes");
+
 
     const dotLayer=
       document.getElementById("dots");
@@ -1206,16 +1369,23 @@ async function init(){
 
         cx:s.xy[0],
         cy:s.xy[1],
+
         r:5,
+
         fill:"#ff3045",
+
         opacity:0
 
       },dotLayer);
 
+
       dots.push(dot);
 
 
-      /* 첫 공연은 이전 이동 경로 없음 */
+      /*
+         첫 공연은
+         이전 이동 경로 없음
+      */
 
       if(i===0){
 
@@ -1230,7 +1400,7 @@ async function init(){
 
       /*
          같은 도시 연속 공연이면
-         고리를 만들지 않음
+         고리 생성하지 않음
       */
 
       if(s.city===previous.city){
@@ -1242,9 +1412,11 @@ async function init(){
 
 
       const d=makeCurve(
+
         previous.xy,
         s.xy,
         i
+
       );
 
 
@@ -1256,13 +1428,20 @@ async function init(){
       }
 
 
+      /* 이동 경로 */
+
       const line=el("path",{
 
         d,
+
         fill:"none",
+
         stroke:"#ff3045",
+
         "stroke-width":3.2,
+
         "stroke-linecap":"round",
+
         opacity:0
 
       },routeLayer);
@@ -1270,7 +1449,9 @@ async function init(){
 
       const length=line.getTotalLength();
 
+
       line.style.strokeDasharray=length;
+
       line.style.strokeDashoffset=length;
 
 
@@ -1289,21 +1470,35 @@ async function init(){
     ===================== */
 
     const cityCount=
-      new Set(shows.map(s=>s.city)).size;
+      new Set(
+        shows.map(s=>s.city)
+      ).size;
+
 
     const yhaCount=
-      shows.filter(s=>s.isYoonHuhAhn).length;
+      shows.filter(
+        s=>s.isYoonHuhAhn
+      ).length;
+
 
     let msg=
-      `${shows.length} SHOWS · `+
-      `${cityCount} CITIES · `+
-      `${Math.round(totalDistance).toLocaleString("ko-KR")} KM`+
-      ` · 윤허안 ${yhaCount}회 포함`;
 
+      `${shows.length} SHOWS · `+
+
+      `${cityCount} CITIES · `+
+
+      `윤허안 ${yhaCount}회 포함`;
+
+
+    /*
+       좌표 미등록 지역은
+       실제로 존재할 경우만 안내
+    */
 
     if(missing.size){
 
       msg+=
+
         ` · 좌표 미등록: ${
           [...missing].join(", ")
         }`;
@@ -1322,7 +1517,9 @@ async function init(){
   catch(err){
 
     document.getElementById("message")
-      .textContent="오류: "+err.message;
+      .textContent=
+        "오류: "+err.message;
+
 
     console.error(err);
 
@@ -1368,30 +1565,42 @@ function showInfo(index){
 function renderIntro(t){
 
   const year="2026";
+
   const title="YB ROAD";
 
 
   const yearCount=Math.min(
+
     year.length,
+
     Math.floor(t/140)
+
   );
 
 
   document.getElementById("introYear")
-    .textContent=year.slice(0,yearCount);
+    .textContent=
+      year.slice(0,yearCount);
 
 
-  const titleTime=Math.max(0,t-900);
+  const titleTime=Math.max(
+    0,
+    t-900
+  );
 
 
   const titleCount=Math.min(
+
     title.length,
+
     Math.floor(titleTime/115)
+
   );
 
 
   document.getElementById("introText")
-    .textContent=title.slice(0,titleCount);
+    .textContent=
+      title.slice(0,titleCount);
 
 
   document.getElementById("introDot")
@@ -1399,19 +1608,28 @@ function renderIntro(t){
       titleCount===title.length?".":"";
 
 
-  const intro=document.getElementById("intro");
+  const intro=
+    document.getElementById("intro");
 
-  const mapScreen=document.getElementById("mapScreen");
 
+  const mapScreen=
+    document.getElementById("mapScreen");
+
+
+  /* 지도 화면 전환 */
 
   if(t>=2600){
 
     intro.style.opacity="0";
+
     mapScreen.style.opacity="1";
 
-  }else{
+  }
+
+  else{
 
     intro.style.opacity="1";
+
     mapScreen.style.opacity="0";
 
   }
@@ -1431,24 +1649,40 @@ function render(t){
 
   renderIntro(t);
 
+
   if(t<INTRO)return;
 
 
   const progress=Math.max(
+
     0,
+
     Math.min(
+
       1,
+
       (t-INTRO)/TRAVEL
+
     )
+
   );
 
 
   const position=
     progress*(shows.length-1);
 
+
   const index=Math.floor(position);
 
   const fraction=position-index;
+
+
+  /*
+     마지막 장면 여부
+  */
+
+  const isFinal=
+    t>=INTRO+TRAVEL;
 
 
   /* =====================
@@ -1459,11 +1693,29 @@ function render(t){
 
     let opacity=0;
 
-    if(i<=index){
+
+    if(isFinal){
+
+      /*
+         마지막 화면에서는
+         모든 공연 지점 밝게
+      */
+
+      opacity=1;
+
+    }
+
+    else if(i<=index){
+
+      /*
+         현재 지점은 밝게
+         지나간 지점은 흐리게
+      */
 
       opacity=i===index?1:.42;
 
     }
+
 
     dot.setAttribute(
       "opacity",
@@ -1480,6 +1732,28 @@ function render(t){
   segments.forEach((seg,i)=>{
 
     if(!seg)return;
+
+
+    /*
+       마지막 장면에서는
+       모든 경로를 밝게 표시
+    */
+
+    if(isFinal){
+
+      seg.line.setAttribute(
+        "opacity",
+        .95
+      );
+
+
+      seg.line.style.strokeDashoffset=0;
+
+
+      return;
+
+    }
+
 
     let visible=0;
 
@@ -1500,7 +1774,8 @@ function render(t){
     if(visible===0){
 
       seg.line.setAttribute(
-        "opacity",0
+        "opacity",
+        0
       );
 
     }
@@ -1508,12 +1783,13 @@ function render(t){
     else if(visible<1){
 
       /*
-         현재 그려지는 이동 경로
+         현재 그려지는 경로
          선명한 빨간색
       */
 
       seg.line.setAttribute(
-        "opacity",.95
+        "opacity",
+        .95
       );
 
     }
@@ -1521,7 +1797,8 @@ function render(t){
     else{
 
       /*
-         지나간 경로는 점점 흐리게
+         지나간 경로는
+         시간이 지날수록 흐려짐
       */
 
       const age=Math.max(
@@ -1529,10 +1806,15 @@ function render(t){
         index-i
       );
 
+
       const opacity=Math.max(
+
         .09,
+
         .72*Math.exp(-age/3)
+
       );
+
 
       seg.line.setAttribute(
         "opacity",
@@ -1553,12 +1835,18 @@ function render(t){
   ===================== */
 
   let point=
-    shows[Math.min(index,shows.length-1)].xy;
+
+    shows[
+      Math.min(index,shows.length-1)
+    ].xy;
 
 
   if(
+
     index<shows.length-1 &&
+
     fraction>0
+
   ){
 
     const seg=segments[index+1];
@@ -1570,6 +1858,7 @@ function render(t){
         seg.length*fraction
       );
 
+
       point=[p.x,p.y];
 
     }
@@ -1577,8 +1866,8 @@ function render(t){
     else{
 
       /*
-         같은 도시 연속 공연:
-         고리 없이 해당 위치 유지
+         같은 도시 연속 공연은
+         해당 위치에 머무름
       */
 
       point=shows[index+1].xy;
@@ -1598,23 +1887,42 @@ function render(t){
   for(const [id,r] of [
 
     ["active",10],
+
     ["halo",23]
 
   ]){
 
-    const node=document.getElementById(id);
+    const node=
+      document.getElementById(id);
 
-    node.setAttribute("cx",point[0]);
-    node.setAttribute("cy",point[1]);
 
     node.setAttribute(
-      "r",
-      Math.max(1,r+pulse)
+      "cx",
+      point[0]
     );
 
+
     node.setAttribute(
+      "cy",
+      point[1]
+    );
+
+
+    node.setAttribute(
+
+      "r",
+
+      Math.max(1,r+pulse)
+
+    );
+
+
+    node.setAttribute(
+
       "opacity",
+
       id==="halo"?.2:1
+
     );
 
   }
@@ -1625,8 +1933,11 @@ function render(t){
   ===================== */
 
   const current=Math.min(
+
     shows.length-1,
+
     index+(fraction>.5?1:0)
+
   );
 
 
@@ -1644,16 +1955,19 @@ function render(t){
   ===================== */
 
   document.getElementById("bar")
-    .style.width=(progress*100)+"%";
+    .style.width=
+      (progress*100)+"%";
 
 
   /* =====================
      마지막 장면
   ===================== */
 
-  if(t>=INTRO+TRAVEL){
+  if(isFinal){
 
-    const firstDate=shows[0].date;
+    const firstDate=
+      shows[0].date;
+
 
     const lastDate=
       shows[shows.length-1].date;
@@ -1670,33 +1984,21 @@ function render(t){
 
 
     const cityCount=
-      new Set(shows.map(s=>s.city)).size;
+      new Set(
+        shows.map(s=>s.city)
+      ).size;
 
 
     document.getElementById("event")
       .textContent=
+
         `${shows.length} SHOWS · ${cityCount} CITIES`;
 
 
     document.getElementById("count")
       .textContent=
+
         String(shows.length).padStart(2,"0");
-
-
-    /* 총 이동 거리 */
-
-    document.getElementById("distanceValue")
-      .textContent=
-        Math.round(totalDistance)
-          .toLocaleString("ko-KR")+" KM";
-
-
-    document.getElementById("distanceRow")
-      .style.display="block";
-
-
-    document.getElementById("distanceNote")
-      .style.display="block";
 
 
     document.getElementById("infoBox")
@@ -1714,8 +2016,11 @@ function render(t){
 function tick(now){
 
   const t=Math.min(
+
     TOTAL,
+
     (now-started)*playbackSpeed
+
   );
 
 
@@ -1726,7 +2031,9 @@ function tick(now){
 
     raf=requestAnimationFrame(tick);
 
-  }else{
+  }
+
+  else{
 
     raf=0;
 
@@ -1750,10 +2057,14 @@ function setSpeed(speed,button){
 
     const now=performance.now();
 
+
     const elapsed=
+
       (now-started)*playbackSpeed;
 
+
     started=
+
       now-elapsed/speed;
 
   }
@@ -1787,16 +2098,21 @@ function replay(){
 
   cancelAnimationFrame(raf);
 
+
   lastIndex=-1;
 
 
-  /* 인트로 초기화 */
+  /* =====================
+     인트로 초기화
+  ===================== */
 
   document.getElementById("intro")
     .style.opacity="1";
 
+
   document.getElementById("intro")
     .style.pointerEvents="auto";
+
 
   document.getElementById("mapScreen")
     .style.opacity="0";
@@ -1805,52 +2121,107 @@ function replay(){
   document.getElementById("introYear")
     .textContent="";
 
+
   document.getElementById("introText")
     .textContent="";
+
 
   document.getElementById("introDot")
     .textContent="";
 
 
-  /* 진행 바 초기화 */
+  /* =====================
+     진행 바 초기화
+  ===================== */
 
   document.getElementById("bar")
     .style.width="0%";
 
 
-  /* 공연 횟수 초기화 */
+  /* =====================
+     공연 횟수 초기화
+  ===================== */
 
   document.getElementById("count")
     .textContent="00";
 
 
-  /* 공연 정보 초기화 */
+  /* =====================
+     공연 정보 초기화
+  ===================== */
 
   document.getElementById("date")
-    .textContent=shows[0].date;
+    .textContent=
+      shows[0].date;
+
 
   document.getElementById("city")
-    .textContent="YB ON THE ROAD";
+    .textContent=
+      "YB ON THE ROAD";
+
 
   document.getElementById("event")
-    .textContent="2026년, 우리가 지나온 무대들";
+    .textContent=
+      "2026년, 우리가 지나온 무대들";
 
-
-  /* 이동 거리 초기화 */
-
-  document.getElementById("distanceRow")
-    .style.display="none";
-
-  document.getElementById("distanceNote")
-    .style.display="none";
 
   document.getElementById("infoBox")
     .classList.remove("final");
 
 
-  /* 애니메이션 시작 */
+  /* =====================
+     지도 점 초기화
+  ===================== */
+
+  dots.forEach(dot=>{
+
+    dot.setAttribute(
+      "opacity",
+      0
+    );
+
+  });
+
+
+  /* =====================
+     이동 경로 초기화
+  ===================== */
+
+  segments.forEach(seg=>{
+
+    if(!seg)return;
+
+
+    seg.line.setAttribute(
+      "opacity",
+      0
+    );
+
+
+    seg.line.style.strokeDashoffset=
+      seg.length;
+
+  });
+
+
+  /* =====================
+     현재 위치 점 초기화
+  ===================== */
+
+  document.getElementById("active")
+    .setAttribute("opacity",0);
+
+
+  document.getElementById("halo")
+    .setAttribute("opacity",0);
+
+
+  /* =====================
+     애니메이션 시작
+  ===================== */
 
   started=performance.now();
+
 
   raf=requestAnimationFrame(tick);
 
@@ -1863,7 +2234,9 @@ function replay(){
 
 function fullscreen(){
 
-  const stage=document.getElementById("stage");
+  const stage=
+    document.getElementById("stage");
+
 
   if(stage.requestFullscreen){
 
