@@ -1,1116 +1,2830 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>2026 YB ROAD.</title>
-
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<title>YB SETLIST ARCHIVE</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   background:#080808;
-  color:white;
-  font-family:Arial,"Noto Sans KR",sans-serif;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  color:#f5f5f5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+  "Noto Sans KR",Arial,sans-serif;
 }
 
-/* 영상 화면 */
-
-#stage{
-  position:relative;
-  width:min(100vw,450px);
-  aspect-ratio:9/16;
-  background:#080808;
-  overflow:hidden;
-}
-
-/* 인트로 */
-
-#intro{
-  position:absolute;
-  inset:0;
-  background:#080808;
-  z-index:20;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:opacity .5s ease;
-}
-
-.intro-inner{
-  width:84%;
-}
-
-#introYear{
-  font-size:23px;
-  font-weight:700;
-  letter-spacing:4px;
-  color:#aaa;
-  height:38px;
-}
-
-.intro-title{
-  font-size:clamp(38px,11vw,57px);
-  font-weight:900;
-  letter-spacing:-2px;
-  white-space:nowrap;
-  line-height:1.3;
-}
-
-#introDot{
-  color:#ff3045;
-}
-
-.cursor{
-  display:inline-block;
-  width:4px;
-  height:45px;
-  background:#ff3045;
-  vertical-align:middle;
-  margin-left:5px;
-  animation:blink .65s infinite;
-}
-
-@keyframes blink{
-  50%{opacity:0}
-}
-
-/* 지도 화면 */
-
-#mapScreen{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  transition:opacity .8s ease;
-  background:
-    radial-gradient(
-      ellipse at 50% 55%,
-      #191919,
-      #080808 75%
-    );
-}
-
-svg{
-  width:100%;
-  height:100%;
-  position:absolute;
-  inset:0;
-}
-
-/* 상단 제목 */
-
-.top{
-  position:absolute;
-  top:7%;
-  left:8%;
-  z-index:2;
-}
-
-.eyebrow{
-  color:#ff3045;
-  font-size:12px;
+header{
+  padding:26px 22px;
+  border-bottom:1px solid #242424;
+  font-size:22px;
   font-weight:800;
-  letter-spacing:3px;
+  letter-spacing:-.5px;
 }
 
-h1{
-  margin:13px 0 0;
-  font-size:clamp(30px,8vw,41px);
-  line-height:1.05;
-  letter-spacing:-1.8px;
+header b{color:#ff3045}
+
+main{
+  max-width:760px;
+  margin:auto;
+  padding:0 22px 60px;
 }
 
-h1 span{
-  color:#ff3045;
-}
+/* HERO */
 
-/* 공연 횟수 */
+.hero{padding:55px 0 45px}
 
-.counter{
-  position:absolute;
-  right:8%;
-  top:19%;
-  text-align:right;
-  z-index:2;
-}
-
-.counter strong{
+.yb-logo{
   display:block;
-  font-size:42px;
-  font-weight:900;
-  color:#ff3045;
-  line-height:1;
+  width:90px;
+  height:auto;
+  margin-bottom:32px;
 }
 
-.counter small{
-  font-size:10px;
-  letter-spacing:2px;
-  color:#999;
+.hero small{
+  display:block;
+  color:#777;
+  font-size:14px;
+  margin-bottom:16px;
 }
 
-/* 공연 정보 */
-
-.info{
-  position:absolute;
-  left:8%;
-  right:8%;
-  bottom:10%;
-  z-index:2;
-  min-height:105px;
-  padding:17px 18px;
-  background:rgba(14,14,14,.94);
-  border-left:3px solid #ff3045;
+.hero h1{
+  margin:0;
+  font-size:46px;
+  line-height:1.02;
+  letter-spacing:-2px;
 }
 
-#date{
-  color:#ff3045;
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:1px;
+.red{color:#ff3045}
+
+.hero p{
+  color:#8d8d8d;
+  font-size:17px;
+  line-height:1.8;
+  margin:24px 0 0;
 }
-
-#city{
-  margin-top:6px;
-  font-size:25px;
-  font-weight:900;
-}
-
-#event{
-  margin-top:7px;
-  font-size:12px;
-  color:#aaa;
-  line-height:1.5;
-}
-
-/* 진행 바 */
-
-.progress{
-  position:absolute;
-  left:8%;
-  right:8%;
-  bottom:6%;
-  height:2px;
-  background:#303030;
-}
-
-#bar{
-  width:0%;
-  height:100%;
-  background:#ff3045;
-}
-
-.footer{
-  position:absolute;
-  bottom:2%;
-  width:100%;
-  text-align:center;
-  font-size:9px;
+  .archive-note{
+  margin-top:14px;
   color:#555;
-  letter-spacing:2px;
+  font-size:12px;
+  line-height:1.6;
+  }
+
+/* 통계 */
+
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-top:1px solid #292929;
+  border-bottom:1px solid #292929;
+  margin-bottom:30px;
 }
 
-/* 버튼 */
-
-.controls{
-  padding:20px;
-  display:flex;
-  gap:10px;
+.stat{
+  text-align:center;
+  padding:24px 10px;
 }
 
-button{
-  background:#ff3045;
+.stat+.stat{border-left:1px solid #292929}
+
+.stat strong{
+  display:block;
+  font-size:25px;
+  margin-bottom:7px;
+}
+
+.stat span{
+  color:#777;
+  font-size:14px;
+}
+
+/* 검색 */
+
+.search{
+  width:100%;
+  background:#171717;
+  border:1px solid #444;
   color:white;
-  border:0;
-  padding:13px 20px;
-  border-radius:8px;
-  font-weight:bold;
+  padding:18px 20px;
+  border-radius:40px;
+  font-size:16px;
+  outline:none;
+}
+
+.search::placeholder{color:#777}
+
+/* 필터 */
+
+.filters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:17px 0 28px;
+  scrollbar-width:none;
+}
+
+.filters::-webkit-scrollbar{display:none}
+
+.filters button{
+  flex:none;
+  border:1px solid #383838;
+  background:#171717;
+  color:#aaa;
+  padding:12px 18px;
+  border-radius:30px;
+  font-size:15px;
+}
+
+.filters button.on{
+  background:#ff3045;
+  border-color:#ff3045;
+  color:white;
+}
+
+/* 곡별 공연 횟수 버튼 */
+
+.song-stats-link{
+  border:1px solid #333;
+  border-radius:15px;
+  padding:21px 20px;
+  margin:0 0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  background:#0c0c0c;
+}
+
+.song-stats-link:active{
+  background:#151515;
+}
+
+.song-stats-link strong{
+  font-size:18px;
+}
+
+.song-stats-link span{
+  color:#ff3045;
+  font-size:26px;
+}/* 정렬 버튼 */
+
+.sort-buttons{
+  display:flex;
+  gap:8px;
+  margin:0 0 16px;
+}
+
+.sort-buttons button{
+  border:1px solid #383838;
+  background:#171717;
+  color:#aaa;
+  padding:10px 16px;
+  border-radius:30px;
+  font-size:13px;
   cursor:pointer;
 }
 
-button.secondary{
-  background:#252525;
+.sort-buttons button.on{
+  background:#ff3045;
+  border-color:#ff3045;
+  color:white;
+}
+/* 월별 필터 */
+
+.month-filters{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:0 0 28px;
+  scrollbar-width:none;
 }
 
-#message{
-  color:#888;
+.month-filters::-webkit-scrollbar{
+  display:none;
+}
+
+.month-filters button{
+  flex:none;
+  border:1px solid #383838;
+  background:#171717;
+  color:#aaa;
+  padding:11px 17px;
+  border-radius:30px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.month-filters button.on{
+  background:#ff3045;
+  border-color:#ff3045;
+  color:white;
+}
+  
+/* 공연 목록 */
+
+.section-title{
+  font-size:27px;
+  margin:0 0 24px;
+}
+
+.card{
+  border:1px solid #292929;
+  border-radius:15px;
+  padding:22px;
+  margin-bottom:14px;
+  cursor:pointer;
+  background:#0c0c0c;
+}
+
+.card:active{background:#151515}
+
+.card .date{
+  color:#ff3045;
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:9px;
+}
+.status{
+  display:inline-block;
+  margin-top:10px;
+  padding:5px 10px;
+  border-radius:20px;
+  background:#2a2a2a;
+  color:#ff3045;
   font-size:12px;
-  padding:10px;
-  text-align:center;
+  font-weight:600;
+}
+.card h3{
+  margin:0 0 9px;
+  font-size:20px;
 }
 
+.card p{
+  margin:0;
+  color:#777;
+  font-size:14px;
+  line-height:1.6;
+}
+
+.empty{
+  color:#777;
+  padding:20px 0;
+}
+
+/* 공연 상세 */
+
+#detail,
+#songStats,
+#songDetail{
+  display:none;
+  padding-top:38px;
+}
+
+.back{
+  color:#aaa;
+  font-size:17px;
+  margin-bottom:35px;
+  cursor:pointer;
+  display:inline-block;
+}
+
+.detail-date{
+  color:#ff3045;
+  font-size:15px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+#detail h1{
+  font-size:32px;
+  line-height:1.25;
+  margin:0 0 20px;
+}
+
+.detail-info{
+  color:#888;
+  font-size:15px;
+  line-height:1.8;
+  margin-bottom:28px;
+}
+
+.performance-image{
+  width:100%;
+  display:block;
+  border-radius:14px;
+  margin:0 0 42px;
+  max-height:520px;
+  object-fit:cover;
+}
+
+.set-title{
+  font-size:25px;
+  margin-bottom:18px;
+}
+
+.song{
+  display:flex;
+  align-items:center;
+  border-top:1px solid #292929;
+  padding:18px 0;
+}
+
+.song:last-child{
+  border-bottom:1px solid #292929;
+}
+
+.song-num{
+  color:#ff3045;
+  width:48px;
+  flex:none;
+  font-size:17px;
+  font-weight:700;
+}
+
+.song-name{
+  font-size:17px;
+}
+  .setlist-order-note{
+  color:#ff3045;
+  font-size:13px;
+  font-weight:700;
+  margin:0 0 18px;
+  }
+  .exit-song-title{
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid #222;
+  color:#ff3045;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:1px;
+  }
+  .setlist-report{
+  margin-top:24px;
+  color:#666;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.setlist-report a{
+  color:#888;
+  text-decoration:none;
+}
+
+.setlist-report a:active{
+  color:#ff3045;
+}
+/* 이전·다음 공연 버튼 */
+.detail-nav{
+  display:flex;
+  gap:10px;
+  margin-top:24px;
+}
+
+.detail-nav button{
+  flex:1;
+  padding:15px 10px;
+  border:1px solid #333;
+  border-radius:12px;
+  background:#0c0c0c;
+  color:#aaa;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.detail-nav button:active{
+  background:#151515;
+  color:#ff3045;
+}
+/* 곡별 통계 */
+
+.stats-kicker{
+  color:#ff3045;
+  font-size:15px;
+  font-weight:800;
+  margin-bottom:17px;
+}
+
+.stats-title{
+  font-size:40px;
+  margin:0 0 20px;
+  letter-spacing:-1.5px;
+}
+
+.stats-desc{
+  color:#777;
+  font-size:16px;
+  line-height:1.8;
+  margin:0 0 35px;
+}
+
+.song-rank{
+  display:flex;
+  align-items:center;
+  border-top:1px solid #292929;
+  padding:20px 4px;
+  cursor:pointer;
+}
+
+.song-rank:last-child{
+  border-bottom:1px solid #292929;
+}
+
+.song-rank:active{
+  background:#111;
+}
+
+.rank-num{
+  width:47px;
+  color:#555;
+  font-weight:700;
+  font-size:16px;
+  flex:none;
+}
+
+.rank-name{
+  flex:1;
+  font-size:17px;
+  font-weight:700;
+  padding-right:10px;
+}
+
+.rank-count{
+  color:#ff3045;
+  font-size:17px;
+  font-weight:800;
+  flex:none;
+}
+
+/* 특정 곡 상세 */
+
+.song-detail-title{
+  font-size:40px;
+  margin:0 0 28px;
+  letter-spacing:-1.5px;
+}
+
+.song-detail-count{
+  color:#ff3045;
+  font-size:19px;
+  font-weight:800;
+  margin-bottom:38px;
+}
+
+.song-performance{
+  padding:20px 2px;
+  border-top:1px solid #292929;
+  cursor:pointer;
+}
+
+.song-performance:last-child{
+  border-bottom:1px solid #292929;
+}
+
+.song-performance:active{
+  background:#111;
+}
+
+.song-performance .sp-date{
+  color:#ff3045;
+  font-size:14px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.song-performance h3{
+  font-size:18px;
+  line-height:1.45;
+  margin:0 0 8px;
+}
+
+.song-performance p{
+  color:#666;
+  font-size:14px;
+  line-height:1.6;
+  margin:0;
+}
+
+/* 푸터 */
+
+footer{
+  max-width:760px;
+  margin:auto;
+  padding:30px 22px 45px;
+  color:#555;
+  font-size:12px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="stage">
+<header>
+  YB <b>SETLIST</b> ARCHIVE
+</header>
 
-  <!-- 인트로 -->
+<main>
 
-  <div id="intro">
-    <div class="intro-inner">
+<!-- 메인 -->
+<section id="home">
 
-      <div id="introYear"></div>
+  <div class="hero">
 
-      <div class="intro-title">
-        <span id="introText"></span><span id="introDot"></span><span class="cursor"></span>
-      </div>
+    <img
+      src="yb.logo.png"
+      alt="YB Logo"
+      class="yb-logo"
+    >
 
-    </div>
+    <small>2026 YB PERFORMANCE ARCHIVE</small>
+
+    <h1>
+      LIVE SETLIST<br>
+      <span class="red">ARCHIVE.</span>
+    </h1>
+
+    <p>
+      2026년 YB 공연 셋리스트를 기록합니다.<br>
+      공연명 또는 곡명으로 찾아보세요.
+    </p>
+<div class="archive-note">
+  * 비공개 스케줄 제외
+</div>
   </div>
 
-  <!-- 지도 애니메이션 -->
+  <div class="stats">
 
-  <div id="mapScreen">
-
-    <svg id="map" viewBox="0 0 900 1600">
-
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="7"/>
-        </filter>
-      </defs>
-
-      <g id="land"></g>
-      <g id="routes"></g>
-      <g id="dots"></g>
-
-      <circle
-        id="halo"
-        fill="#ff3045"
-        opacity="0"
-      />
-
-      <circle
-        id="active"
-        fill="#ff3045"
-        opacity="0"
-      />
-
-    </svg>
-
-    <div class="top">
-      <div class="eyebrow">
-        2026 YB PERFORMANCE
-      </div>
-
-      <h1>
-        YB<br>
-        <span>ROAD.</span>
-      </h1>
+    <div class="stat">
+      <strong id="cc">0</strong>
+      <span>등록 공연</span>
     </div>
 
-    <div class="counter">
-      <strong id="count">00</strong>
-      <small>LIVE SHOWS</small>
-    </div>
-
-    <div class="info">
-      <div id="date">
-        2026.01.03 — 2026.10.17
-      </div>
-
-      <div id="city">
-        YB ON THE ROAD
-      </div>
-
-      <div id="event">
-        2026년, 우리가 지나온 무대들
-      </div>
-    </div>
-
-    <div class="progress">
-      <div id="bar"></div>
-    </div>
-
-    <div class="footer">
-      UNOFFICIAL YB PERFORMANCE ARCHIVE
+    <div class="stat">
+      <strong id="sc">0</strong>
+      <span>수록 곡</span>
     </div>
 
   </div>
-
+  
+<div class="song-stats-link" onclick="openSongStats()">
+  <strong>곡별 공연 횟수</strong>
+  <span>→</span>
 </div>
+  
+  <input
+    id="q"
+    class="search"
+    placeholder="곡명 또는 공연명을 검색하세요"
+  >
 
-<div class="controls">
-  <button onclick="replay()">
-    ▶ 다시 재생
+  <div class="filters">
+
+    <button class="on" onclick="ft('전체',this)">
+      전체
+    </button>
+
+    <button onclick="ft('단독공연',this)">
+      단독공연
+    </button>
+
+    <button onclick="ft('페스티벌',this)">
+      페스티벌
+    </button>
+
+    <button onclick="ft('대학축제',this)">
+      대학축제
+    </button>
+
+    <button onclick="ft('행사',this)">
+      행사
+    </button>
+
+  </div>
+
+  
+
+  <h2 class="section-title">
+  공연 기록
+</h2>
+<div class="sort-buttons">
+  <button class="on" onclick="changeSort('old', this)">
+    오래된순
   </button>
 
-  <button class="secondary" onclick="fullscreen()">
-    전체화면
+  <button onclick="changeSort('new', this)">
+    최신순
   </button>
 </div>
+<div id="monthFilters" class="month-filters"></div>
 
-<div id="message">
-  공연 데이터를 불러오는 중...
+<div id="list"></div>
+
+</section>
+
+
+<!-- 공연 상세 -->
+<section id="detail">
+
+  <div class="back" onclick="goHome()">
+    ← 공연 목록
+  </div>
+
+  <div id="dd" class="detail-date"></div>
+
+  <h1 id="dt"></h1>
+
+  <div id="dm" class="detail-info"></div>
+
+  <img
+    id="performanceImage"
+    class="performance-image"
+    alt="공연 대표 이미지"
+  >
+
+  <h2 class="set-title">
+    SETLIST
+  </h2>
+
+  <div id="songs"></div>
+  <div class="detail-nav">
+  <button id="prevPerformance">← 이전 공연</button>
+  <button id="nextPerformance">다음 공연 →</button>
+  </div>
+<div class="setlist-report">
+  셋리스트 오류 및 누락 제보 ·
+  <a href="https://www.instagram.com/yb.rstar/" target="_blank">
+    Instagram @yb.rstar
+  </a>
 </div>
+</section>
+
+
+<!-- 곡별 통계 -->
+<section id="songStats">
+
+  <div class="back" onclick="goHome()">
+    ← 메인으로
+  </div>
+
+  <div class="stats-kicker">
+    2026 YB SETLIST
+  </div>
+
+  <h1 class="stats-title">
+    곡별 공연 횟수
+  </h1>
+
+  <p class="stats-desc">
+    2026년 등록된 공연을 기준으로 계산합니다.<br>
+    곡을 누르면 해당 곡의 공연 기록을 볼 수 있습니다.
+  </p>
+
+  <div id="songRanking"></div>
+
+</section>
+
+
+<!-- 특정 곡 공연 목록 -->
+<section id="songDetail">
+
+  <div class="back" onclick="openSongStats()">
+    ← 곡별 통계
+  </div>
+
+  <h1 id="selectedSong" class="song-detail-title"></h1>
+
+  <div id="selectedCount" class="song-detail-count"></div>
+
+  <div id="songPerformances"></div>
+
+</section>
+
+</main>
+
+<footer>
+  UNOFFICIAL YB FAN ARCHIVE
+</footer>
+
 
 <script>
 
-/* =========================
-   기본 설정
-========================= */
+/*
+데이터 형식
 
-const END="2026.10.17";
+[
+  날짜,
+  공연명,
+  지역,
+  장소,
+  분류,
+  대표사진,
+  [셋리스트]
+]
+*/
 
-const INTRO=3200;
-const TRAVEL=32000;
-const OUTRO=4000;
+const data=[
+  [
+  "2026.10.17",
+  "NOL Festival",
+  "경기 고양",
+  "킨텍스 제2전시장 9홀",
+  "페스티벌",
+  "261017.jpg",
+  [
+    "Rebellion",
+    "Orchid",
+    "나는 나비",
+    "박하사탕",
+    "부력",
+    "담배가게 아가씨",
+    "It Burns",
+    "흰수염고래",
+    "돌고돌고돌고"
+  ],
+  "",
+  "사랑했나봐"
+],
+  [
+  "2026.10.15",
+  "영동난계국악축제 (윤허안)",
+  "충북 영동",
+  "영동 레인보우 힐링 관광지",
+  "행사",
+  "261015.jpg",
+  [
+    "요즘 내 모습",
+    "타잔",
+    "새벽길",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "사랑했나봐"
+],
+  [
+  "2026.10.11",
+  "장성 황룡강 가을꽃축제",
+  "전남 장성",
+  "황룡강변 특설무대",
+  "행사",
+  "261011.jpg",
+  [
+    "나는 나비",
+    "잊을게",
+    "사랑했나봐",
+    "사랑two",
+    "꽃비",
+    "담배가게 아가씨",
+    "Rebellion",
+    "It Burns",
+    "흰수염고래",
+    "돌고돌고돌고"
+  ],
+  "",
+  "빈잔"
+],
+  [
+  "2026.10.09",
+  "2026 GHOST Festival",
+  "경기 파주",
+  "임진각 평화누리공원",
+  "페스티벌",
+  "261009.jpg",
+  [
+    "긴 여행",
+    "잊을게",
+    "박하사탕",
+    "사랑했나봐",
+    "Silence",
+    "End And End",
+    "Rebellion",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "끝이 아니길"
+],
+  [
+  "2026.10.07",
+  "광주 추억의 충장축제",
+  "광주 동구",
+  "금남로 주무대",
+  "행사",
+  "261007.jpg",
+  [
+    "담배가게 아가씨",
+    "나는 나비",
+    "잊을게",
+    "사랑했나봐",
+    "탈춤",
+    "아리랑",
+    "흰수염고래",
+    "가을 우체국 앞에서",
+    "사랑two",
+    "너를 보내고"
+  ],
+    "",
+    "광야에서"
+],
+  /* 9/3 천안 K-컬처박람회 - 순서 미확인 */
 
-const TOTAL=INTRO+TRAVEL+OUTRO;
+[
+  "2026.09.03",
+  "천안 K-컬처박람회",
+  "충남 천안",
+  "독립기념관 야외특설무대",
+  "행사",
+  "260903.jpg",
+  [
+    "나는 나비",
+    "잊을게",
+    "박하사탕",
+    "사랑했나봐",
+    "Rebellion",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "돌고돌고돌고"
+  ],
+  "",
+  "너에게 닿기를"
+  
+],
+/* 5/22 괴산 빨간맛 페스티벌 */
+
+[
+  "2026.05.22",
+  "괴산 빨간맛 페스티벌",
+  "충북 괴산",
+  "괴산 유기농엑스포광장 주무대",
+  "행사",
+  "260522.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "꽃비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
 
 
-/* =========================
-   도시 좌표
-========================= */
+/* 9/9 성결대학교 축제 */
 
-const coords={
-
-  서울:[126.978,37.566],
-  인천:[126.705,37.456],
-  수원:[127.029,37.263],
-  화성:[126.832,37.200],
-  용인:[127.177,37.241],
-  안양:[126.956,37.394],
-  안성:[127.279,37.008],
-  과천:[126.987,37.429],
-  고양:[126.832,37.658],
-  파주:[126.780,37.760],
-  의정부:[127.047,37.738],
-  동두천:[127.061,37.904],
-  이천:[127.443,37.272],
-
-  강릉:[128.876,37.752],
-  원주:[127.946,37.342],
-  삼척:[129.165,37.450],
-  춘천:[127.730,37.881],
-
-  대전:[127.384,36.350],
-  세종:[127.289,36.480],
-  천안:[127.153,36.815],
-  아산:[127.004,36.789],
-  공주:[127.120,36.446],
-  계룡:[127.248,36.275],
-  보령:[126.613,36.333],
-  청주:[127.489,36.642],
-  괴산:[127.786,36.815],
-  영동:[127.775,36.175],
-
-  광주:[126.852,35.160],
-  담양:[126.989,35.321],
-  장성:[126.785,35.301],
-  순천:[127.489,34.950],
-  곡성:[127.292,35.282],
-  전주:[127.148,35.824],
-
-  대구:[128.602,35.872],
-  포항:[129.365,36.019],
-  의성:[128.697,36.353],
-  부산:[129.075,35.180],
-  울산:[129.311,35.539],
-  함양:[127.725,35.520],
-
-  제주:[126.532,33.500],
-  서귀포:[126.560,33.254]
-
-};
+[
+  "2026.09.09",
+  "성결대학교 축제",
+  "경기 안양",
+  "성결대학교",
+  "대학축제",
+  "260909.jpg",
+  [
+    "흰수염고래",
+    "박하사탕",
+    "나는 나비",
+    "사랑했나봐",
+    "Stormborn",
+    "Rebellion",
+    "It Burns",
+    "담배가게 아가씨",
+    "정글의 법칙"
+  ],
+  "",
+  "잊을게"
+],
 
 
-/* =========================
-   변수
-========================= */
+/* 9/10 단국대학교 축제 */
 
-let shows=[];
-let segments=[];
-let dots=[];
+[
+  "2026.09.10",
+  "단국대학교 축제",
+  "경기 용인",
+  "단국대학교",
+  "대학축제",
+  "260910.jpg",
+  [
+    "박하사탕",
+    "사랑했나봐",
+    "잊을게",
+    "담배가게 아가씨",
+    "Rebellion",
+    "It Burns",
+    "정글의 법칙",
+    "흰수염고래",
+    "나는 나비"
+  ]
+],
 
-let projection;
 
-let started=0;
-let raf=0;
-let lastIndex=-1;
+/* 9/16 중앙대학교 축제 */
 
-const NS="http://www.w3.org/2000/svg";
+[
+  "2026.09.16",
+  "중앙대학교 축제",
+  "경기 안성",
+  "중앙대학교 다빈치캠퍼스",
+  "대학축제",
+  "260916.jpg",
+  [
+    "박하사탕",
+    "사랑했나봐",
+    "잊을게",
+    "담배가게 아가씨",
+    "Rebellion",
+    "It Burns",
+    "정글의 법칙",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "스니커즈",
+],
 
 
-/* =========================
-   SVG 생성
-========================= */
+/* 9/22 명지대학교 축제 - 순서 미확인 */
 
-function el(tag,attrs,parent){
+[
+  "2026.09.22",
+  "명지대학교 축제",
+  "경기 용인",
+  "명지대학교 자연캠퍼스",
+  "대학축제",
+  "260922.jpg",
+  [
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "Rebellion",
+    "It Burns",
+    "정글의 법칙",
+    "나는 나비",
+    "흰수염고래",
+    "돌고돌고돌고"
+  ],
+  "",
+  "스니커즈",
+],
 
-  const node=document.createElementNS(NS,tag);
+[
+  "2026.10.01",
+  "성균관대학교 축제",
+  "경기 수원",
+  "성균관대학교 자연과학캠퍼스",
+  "대학축제",
+  "261001.jpg",
+  [
+    "박하사탕",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "It Burns",
+    "정글의 법칙",
+    "흰수염고래",
+    "나는 나비",
+  ],
+  "",
+  "스니커즈",
+],
 
-  for(const [k,v] of Object.entries(attrs)){
-    node.setAttribute(k,v);
-  }
+[
+  "2026.10.04",
+  "XMF 2026",
+  "인천",
+  "파라다이스시티",
+  "페스티벌",
+  "261004.jpg",
+  [
+    "담배가게 아가씨",
+    "나는 나비",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "부력",
+    "흰수염고래",
+    "It Burns"
+  ],
+  "",
+  "사랑했나봐",
+],
 
-  parent.appendChild(node);
+[
+  "2026.10.06",
+  "전남대학교 축제",
+  "광주",
+  "전남대학교",
+  "대학축제",
+  "261006.jpg",
+  [
+    "박하사탕",
+    "사랑했나봐",
+    "잊을게",
+    "담배가게 아가씨",
+    "Rebellion",
+    "It Burns",
+    "정글의 법칙",
+    "흰수염고래",
+    "나는 나비",
+    "돌고돌고돌고"
+  ],
+  "",
+  "스니커즈",
+  
+],
 
-  return node;
+[
+  "2026.09.05",
+  "SoundPlanet FESTIVAL",
+  "인천",
+  "파라다이스시티",
+  "페스티벌",
+  "260905.jpg",
+  [
+    "End And End",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "부력",
+    "박하사탕",
+    "나는 나비",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "It Burns",
+    "돌고돌고돌고"
+  ],
+  "",
+  "사랑했나봐",
+  
+],
+
+[
+  "2026.09.11",
+  "블루웨이브 뮤직 페스티벌",
+  "서울",
+  "올림픽공원 올림픽홀",
+  "행사",
+  "260911.jpg",
+  [
+    "긴 여행",
+    "박하사탕",
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "It Burns",
+    "흰수염고래",
+    "Jumping to you"
+  ],
+  "",
+  "Another in the Fire",
+],
+
+[
+  "2026.09.12",
+  "2026 함께, 약속 환경 콘서트",
+  "서울",
+  "잠실학생체육관",
+  "행사",
+  "260912.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "Rebellion",
+    "흰수염고래",
+    "It Burns"
+  ],
+  "",
+  "나의 작은 기억",
+],
+
+[
+  "2026.09.13",
+  "동두천 락페스티벌",
+  "경기 동두천",
+  "신천교 하부광장 특설무대",
+  "페스티벌",
+  "260913.jpg",
+  [
+    "이 땅에 살기 위하여",
+    "담배가게 아가씨",
+    "Rebellion",
+    "박하사탕",
+    "It Burns",
+    "흰수염고래",
+    "나는 나비",
+    "돌고돌고돌고"
+  ],
+  "",
+  "후회없어",
+],
+
+[
+  "2026.09.19",
+  "2026 우리 모모콘",
+  "경기 과천",
+  "서울랜드",
+  "페스티벌",
+  "260919.jpg",
+  [
+    "나는 나비",
+    "잊을게",
+    "사랑했나봐",
+    "Voyeurist",
+    "Rebellion",
+    "흰수염고래",
+    "사랑two",
+    "너를 보내고",
+    "담배가게 아가씨"
+  ],
+  "",
+  "오늘은",
+],
+
+[
+  "2026.09.20",
+  "과천 공연예술축제",
+  "경기 과천",
+  "과천",
+  "행사",
+  "260920.jpg",
+  [
+    "긴 여행",
+    "박하사탕",
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "Orchid",
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "흰수염고래",
+    "붉은노을"
+  ],
+  "",
+  "너를 보내고",
+],
+
+[
+  "2026.09.29",
+  "성공회대학교 축제",
+  "서울",
+  "성공회대학교",
+  "대학축제",
+  "260929.jpg",
+  [
+    "담배가게 아가씨",
+    "Rebellion",
+    "사랑했나봐",
+    "나는 나비",
+    "흰수염고래",
+    "잊을게",
+    "사랑two",
+    "너를 보내고",
+    "가을 우체국 앞에서",
+    "돌고돌고돌고"
+  ],
+  "",
+  "처음처럼",
+],
+
+[
+  "2026.09.30",
+  "경희대학교 축제",
+  "서울",
+  "경희대학교",
+  "대학축제",
+  "260930.jpg",
+  [
+    "박하사탕",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "It Burns",
+    "정글의 법칙",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "스니커즈"
+],
+[
+  "2026.08.29",
+  "의성 썸머 뮤직 페스타",
+  "경북 의성",
+  "의성 종합운동장",
+  "행사",
+  "260829.jpg",
+  [
+    "나는 나비",
+    "박하사탕",
+    "사랑했나봐",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "It Burns"
+  ],
+  "",
+  "비처럼 음악처럼"
+],
+
+[
+  "2026.08.28",
+  "제4회 장항 맥문동 꽃축제 (윤허안)",
+  "충남 서천",
+  "장항 송림자연휴양림",
+  "행사",
+  "260828.jpg",
+  [
+    "요즘 내 모습",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "타잔",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "벚꽃 엔딩"
+],
+
+[
+  "2026.08.22",
+  "송도맥주축제",
+  "인천",
+  "송도달빛축제공원",
+  "행사",
+  "260822.jpg",
+  [
+    "나는 나비",
+    "잊을게",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "It Burns",
+    "Rebellion",
+    "흰수염고래",
+    "돌고돌고돌고"
+  ],
+  "",
+  "사랑two"
+],
+
+[
+  "2026.08.16",
+  "JUMF",
+  "전북 전주",
+  "전주대학교",
+  "페스티벌",
+  "260816.jpg",
+  [
+    "꿈꾸는 소녀",
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "박하사탕",
+    "나는 나비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "It Burns",
+    "돌고돌고돌고"
+  ],
+  "",
+  "서른 개의 바람을 지나"
+],
+
+[
+  "2026.08.15",
+  "2026 815런 (윤도현)",
+  "서울",
+  "상암 월드컵공원",
+  "행사",
+  "260815.jpg",
+  [
+    "나는 나비",
+    "아리랑",
+    "It Burns",
+    "Rebellion"
+  ]
+],
+
+[
+  "2026.08.14",
+  "공주 야밤 맥주축제",
+  "충남 공주",
+  "금강신관공원 일원",
+  "행사",
+  "260814.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "It Burns"
+  ],
+  "",
+  "나와 같다면"
+],
+
+[
+  "2026.08.08",
+  "설봉산 별빛축제",
+  "경기 이천",
+  "이천시 설봉공원 잔디공원",
+  "행사",
+  "260808.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "너를 보내고",
+    "담배가게 아가씨",
+    "It Burns",
+    "흰수염고래",
+    "Rebellion"
+  ]
+],
+
+[
+  "2026.08.07",
+  "SoundPlanet BOOST in 보령",
+  "충남 보령",
+  "보령 머드엑스포 광장",
+  "행사",
+  "260807.jpg",
+  [
+    "나는 나비",
+    "박하사탕",
+    "Orchid",
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "Jumping to you"
+  ],
+  "",
+  "사랑했나봐"
+],
+[
+  "2026.07.25",
+  "삼척 비치 썸 페스티벌",
+  "강원 삼척",
+  "삼척해수욕장 일원",
+  "행사",
+  "260725.jpg",
+  [
+    "긴 여행",
+    "담배가게 아가씨",
+    "사랑했나봐",
+    "박하사탕",
+    "잊을게",
+    "나는 나비",
+    "흰수염고래",
+    "Rebellion"
+  ]
+],
+
+[
+  "2026.07.04",
+  "강정마을 생태축제 Feat. 성난고래의 노래 환경콘서트 (윤허안)",
+  "제주 서귀포",
+  "서귀포시 강정동 일대",
+  "행사",
+  "260704.jpg",
+  [
+    "요즘 내 모습",
+    "사랑했나봐",
+    "새벽길",
+    "담배가게 아가씨",
+    "타잔",
+    "흰수염고래",
+    "나는 나비"
+  ],
+  "",
+  "Trip"
+],
+
+[
+  "2026.07.03",
+  "2026 삼다콘서트 (윤허안)",
+  "제주",
+  "신제주 로터리 삼다공원",
+  "행사",
+  "260703.jpg",
+  [
+    "요즘 내 모습",
+    "사랑했나봐",
+    "새벽길",
+    "담배가게 아가씨",
+    "타잔",
+    "흰수염고래",
+    "나는 나비"
+  ]
+],
+[
+  "2026.06.25",
+  "박태희의 음악일기 (윤허안)",
+  "서울",
+  "CTS아트홀",
+  "행사",
+  "260625.jpg",
+  [
+    "담배가게 아가씨",
+    "타잔",
+    "나는 나비"
+  ]
+],
+
+[
+  "2026.06.13",
+  "수원 화성 헤리티지 콘서트",
+  "경기 수원",
+  "수원 화성",
+  "행사",
+  "260613.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "꽃비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "오 필승 코리아"
+  ]
+],
+
+[
+  "2026.06.04",
+  "Your Not Alone 더브릿지 10주년 콘서트 (윤도현)",
+  "서울",
+  "한강 예빛섬",
+  "행사",
+  "",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "흰수염고래"
+  ]
+],
+
+[
+  "2026.06.01",
+  "국립순천대학교 축제",
+  "전남 순천",
+  "국립순천대학교",
+  "대학축제",
+  "260601.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "뽀로로 (Metal)"
+  ]
+],
+[
+  "2026.05.31",
+  "곡성 장미축제 폐막 공연",
+  "전남 곡성",
+  "곡성 기차마을",
+  "행사",
+  "260531.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "너를 보내고",
+    "꽃비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "오 필승 코리아"
+  ]
+],
+
+[
+  "2026.05.29",
+  "한양대학교 축제",
+  "서울",
+  "한양대학교",
+  "대학축제",
+  "260529.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
+
+[
+  "2026.05.28",
+  "연세대학교 축제",
+  "서울",
+  "연세대학교",
+  "대학축제",
+  "260528.jpg",
+  [
+    "연세여 사랑한다",
+    "Rebellion",
+    "담배가게 아가씨",
+    "사랑했나봐",
+    "나는 나비",
+    "Orchid",
+    "흰수염고래",
+    "뽀로로 (Metal)"
+  ]
+],
+
+[
+  "2026.05.27",
+  "경희대학교 축제",
+  "서울",
+  "경희대학교",
+  "대학축제",
+  "260527.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "오 필승 코리아"
+  ]
+],
+
+[
+  "2026.05.26",
+  "동국대학교 축제",
+  "서울",
+  "동국대학교",
+  "대학축제",
+  "260526.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "난 멋있어"
+  ]
+],
+
+[
+  "2026.05.23",
+  "청남대 재즈토닉",
+  "충북 청주",
+  "청남대 일원",
+  "행사",
+  "260523.jpg",
+  [
+    "나는 나비",
+    "타잔",
+    "사랑했나봐",
+    "Orchid",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
+
+[
+  "2026.05.21",
+  "아주대학교 축제",
+  "경기 수원",
+  "아주대학교",
+  "대학축제",
+  "260521.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "난 멋있어",
+    "오 필승 코리아"
+  ]
+],
+
+[
+  "2026.05.20",
+  "경기대학교 축제",
+  "경기 수원",
+  "경기대학교",
+  "대학축제",
+  "260520.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "Golden (케이팝데몬헌터스)"
+  ]
+],
+
+[
+  "2026.05.19",
+  "국민대학교 축제",
+  "서울",
+  "국민대학교",
+  "대학축제",
+  "260519.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "오 필승 코리아"
+  ]
+],
+
+[
+  "2026.05.16",
+  "Run to Roar",
+  "서울",
+  "광화문",
+  "행사",
+  "260516.jpg",
+  [
+    "오 필승 코리아",
+    "나는 나비",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "아리랑"
+  ]
+],
+
+[
+  "2026.05.15",
+  "서강대학교 축제",
+  "서울",
+  "서강대학교",
+  "대학축제",
+  "260515.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "Golden (케이팝데몬헌터스)"
+  ]
+],
+
+[
+  "2026.05.14",
+  "수원대학교 축제",
+  "경기 화성",
+  "수원대학교",
+  "대학축제",
+  "260514.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "It Burns",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "뽀로로 (Metal)"
+  ]
+],
+
+[
+  "2026.05.13",
+  "강남대학교 축제",
+  "경기 용인",
+  "강남대학교",
+  "대학축제",
+  "260513.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "Voyeurist"
+  ]
+],
+
+[
+  "2026.05.11",
+  "부경대학교 축제",
+  "부산",
+  "부경대학교",
+  "대학축제",
+  "260511.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "너를 보내고",
+    "뽀로로 (Metal)"
+  ]
+],
+
+[
+  "2026.05.09",
+  "대구 탑밴드 경연대회",
+  "대구",
+  "두류공원 코오롱 야외음악당",
+  "행사",
+  "260509.jpg",
+  [
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "흰수염고래",
+    "나는 나비"
+  ]
+],
+
+[
+  "2026.05.06",
+  "호서대학교 축제",
+  "충남 아산",
+  "호서대학교 아산캠퍼스 대운동장",
+  "대학축제",
+  "260506.jpg",
+  [
+    "Rebellion",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "사랑했나봐",
+    "박하사탕",
+    "나는 나비",
+    "흰수염고래",
+    "사랑two"
+  ]
+],
+
+[
+  "2026.05.04",
+  "함양 천령문화제",
+  "경남 함양",
+  "상림공원 고운광장",
+  "행사",
+  "260504.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "너를 보내고",
+    "꽃비",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
+
+[
+  "2026.05.03",
+  "아산 성웅 이순신 축제",
+  "충남 아산",
+  "온양온천역 광장 메인 무대",
+  "행사",
+  "260503.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "너를 보내고",
+    "꽃비",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
+
+[
+  "2026.05.01",
+  "담양 대나무축제 개막식",
+  "전남 담양",
+  "국립목포대학교 담양캠퍼스 내 주무대 일원",
+  "행사",
+  "260501.jpg",
+  [
+    "나는 나비",
+    "사랑했나봐",
+    "사랑two",
+    "너를 보내고",
+    "꽃비",
+    "담배가게 아가씨",
+    "흰수염고래",
+    "Jumping to you"
+  ]
+],
+  [
+  "2026.04.18 - 04.19",
+  "YB MASTERED 3.1 : THE FINAL",
+  "서울",
+  "블루스퀘어 우리WON뱅킹홀",
+  "단독공연",
+  "20260418.jpg",
+  [
+    "박하사탕",
+    "잊을게",
+    "나는 나비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "사랑two",
+    "너를 보내고",
+    "사랑했나봐",
+    "이 땅에 살기 위하여",
+    "죽든지 말든지",
+    "깃발",
+    "Sad But True",
+    "It Burns",
+    "흰수염고래",
+    "서른 개의 바람을 지나",
+    "긴 여행"
+  ]
+],
+  
+  [
+  "2026.03.28 - 03.29",
+  "YB REMASTERED 3.0 : Odyssey 울산",
+  "울산",
+  "KBS울산홀",
+  "단독공연",
+  "20260329.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+[
+  "2026.03.21 - 03.22",
+  "YB REMASTERED 3.0 : Odyssey 전주",
+  "전북 전주",
+  "한국소리문화의전당 모악당",
+  "단독공연",
+  "20260322.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+[
+  "2026.03.13 - 03.14",
+  "YB REMASTERED 3.0 : Odyssey 용인",
+  "경기 용인",
+  "용인 포은아트홀",
+  "단독공연",
+  "20260314.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+[
+  "2026.03.07 - 03.08",
+  "YB REMASTERED 3.0 : Odyssey 인천",
+  "인천",
+  "인천 문화예술회관 대공연장",
+  "단독공연",
+  "20260308.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+[
+  "2026.02.28 - 03.01",
+  "YB REMASTERED 3.0 : Odyssey 천안",
+  "충남 천안",
+  "천안 예술의전당",
+  "단독공연",
+  "20260301.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+[
+  "2026.02.21 - 02.22",
+  "YB REMASTERED 3.0 : Transcendent 광주",
+  "광주",
+  "김대중컨벤션센터 다목적홀",
+  "단독공연",
+  "20260222.jpg",
+  [
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "야간마차",
+    "바람",
+    "가리지좀마",
+    "타잔",
+    "박하사탕",
+    "잊을게",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "88만원의 Losing game",
+    "Stay Alive",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "나는 나비"
+  ]
+],
+
+[
+  "2026.02.07 - 02.08",
+  "YB REMASTERED 3.0 : Odyssey 청주",
+  "충북 청주",
+  "청주 예술의전당",
+  "단독공연",
+  "20260207.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+  
+/* 계룡 */
+
+[
+  "2026.09.17",
+  "안녕?여름, 안녕?가을 계룡 축제",
+  "충남 계룡",
+  "계룡시민체육관",
+  "행사",
+  "20260917.jpg",
+  [
+    "박하사탕",
+    "나는 나비",
+    "잊을게",
+    "사랑했나봐",
+    "담배가게 아가씨",
+    "Rebellion",
+    "흰수염고래",
+    "It Burns"
+  ],
+  "",
+  "서른 개의 바람을 지나"
+],
+
+
+/* 의정부 */
+
+[
+  "2026.01.31 - 02.01",
+  "YB REMASTERED 3.0 : Odyssey 의정부",
+  "경기 의정부",
+  "의정부 예술의전당 대극장",
+  "단독공연",
+  "20260201.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+
+/* 대전 */
+
+[
+  "2026.01.24 - 01.25",
+  "YB REMASTERED 3.0 : Transcendent 대전",
+  "대전",
+  "대전컨벤션 제1전시장",
+  "단독공연",
+  "20260124.jpg",
+  [
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "야간마차",
+    "바람",
+    "가리지좀마",
+    "타잔",
+    "박하사탕",
+    "잊을게",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "88만원의 Losing game",
+    "Stay Alive",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "나는 나비"
+  ]
+],
+
+
+/* 포항 */
+
+[
+  "2026.01.17 - 01.18",
+  "YB REMASTERED 3.0 : Transcendent 포항",
+  "경북 포항",
+  "포항실내체육관",
+  "단독공연",
+  "20260117.jpg",
+  [
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "야간마차",
+    "바람",
+    "가리지좀마",
+    "타잔",
+    "박하사탕",
+    "잊을게",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "88만원의 Losing game",
+    "Stay Alive",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "나는 나비"
+  ]
+],
+
+
+/* 원주 */
+
+[
+  "2026.01.10 - 01.11",
+  "YB REMASTERED 3.0 : Odyssey 원주",
+  "강원 원주",
+  "백운아트홀",
+  "단독공연",
+  "20260110.jpg",
+  [
+    "긴 여행",
+    "꿈꾸는 소녀",
+    "박하사탕",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "먼 훗날",
+    "타잔",
+    "가리지좀마",
+    "나는 나비",
+    "Rebellion",
+    "Stormborn",
+    "Orchid",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "우리들 함께 여기에"
+  ]
+],
+
+
+/* 너트30 */
+
+[
+  "2026.01.06",
+  "너트30 Festival 크라잉넛 with YB",
+  "서울",
+  "KT&G 상상마당 홍대 라이브홀",
+  "페스티벌",
+  "20260106.jpg",
+  [
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "나는 나비",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래"
+  ]
+],
+
+
+/* 강릉 */
+
+[
+  "2026.01.03",
+  "YB REMASTERED 3.0 : Transcendent 강릉",
+  "강원 강릉",
+  "가톨릭관동대학교 세바스티아노스포츠센터",
+  "단독공연",
+  "20260103.jpg",
+  [
+    "Voyeurist",
+    "Orchid",
+    "Stormborn",
+    "Rebellion",
+    "야간마차",
+    "바람",
+    "가리지좀마",
+    "타잔",
+    "박하사탕",
+    "잊을게",
+    "사랑two",
+    "너를보내고",
+    "가을 우체국 앞에서",
+    "Golden (케이팝데몬헌터스)",
+    "모나리자 (조용필)",
+    "88만원의 Losing game",
+    "Stay Alive",
+    "담배가게 아가씨",
+    "난 멋있어",
+    "It Burns",
+    "흰수염고래",
+    "사랑했나봐",
+    "나는 나비"
+  ]
+]
+
+];
+
+
+/* 날짜 최신순 */
+
+function dateKey(x){
+  const m=x[0].match(/(\d{4})\.(\d{2})\.(\d{2})/);
+  if(!m) return 0;
+  return Number(m[1]+m[2]+m[3]);
+}
+
+data.sort((a,b)=>dateKey(a)-dateKey(b));
+
+
+let type="전체";
+let month="전체";
+let sortOrder="old";
+  
+const home=document.querySelector("#home");
+const detail=document.querySelector("#detail");
+const songStats=document.querySelector("#songStats");
+const songDetail=document.querySelector("#songDetail");
+
+const list=document.querySelector("#list");
+const q=document.querySelector("#q");
+const monthFilters=document.querySelector("#monthFilters");
+
+const dd=document.querySelector("#dd");
+const dt=document.querySelector("#dt");
+const dm=document.querySelector("#dm");
+const songs=document.querySelector("#songs");
+const performanceImage=document.querySelector("#performanceImage");
+
+const cc=document.querySelector("#cc");
+const sc=document.querySelector("#sc");
+
+const songRanking=document.querySelector("#songRanking");
+const selectedSong=document.querySelector("#selectedSong");
+const selectedCount=document.querySelector("#selectedCount");
+const songPerformances=document.querySelector("#songPerformances");
+
+
+function hideAll(){
+
+  home.style.display="none";
+  detail.style.display="none";
+  songStats.style.display="none";
+  songDetail.style.display="none";
+
 }
 
 
-/* =========================
-   지역명 추출
-========================= */
+/* 월 버튼 자동 생성 */
 
-function cityKey(region){
+function makeMonthFilters(){
 
-  const p=region.trim().split(/\s+/);
+  const months=[
+    ...new Set(
+      data.map(x=>{
 
-  const metro=[
-    "서울","인천","광주",
-    "대구","대전","부산",
-    "울산","세종","제주"
-  ];
+        const m=x[0].match(/^\d{4}\.(\d{2})/);
 
-  if(metro.includes(p[0])){
-    return p[0];
-  }
+        return m
+          ? Number(m[1])
+          : null;
 
-  return p[p.length-1];
-}
+      }).filter(Boolean)
+    )
+  ].sort((a,b)=>a-b);
 
 
-/* =========================
-   공연 날짜 분리
-========================= */
+  monthFilters.innerHTML=`
 
-function dates(str){
+    <button
+      class="${month==="전체" ? "on" : ""}"
+      onclick="fm('전체',this)"
+    >
+      전체
+    </button>
 
-  const m=str.match(
-    /^(\d{4})\.(\d{2})\.(\d{2})(?:\s*-\s*(?:(\d{4})\.)?(\d{2})\.(\d{2}))?/
-  );
+    ${months.map(m=>`
 
-  if(!m)return [];
+      <button
+        class="${month===m ? "on" : ""}"
+        onclick="fm(${m},this)"
+      >
+        ${m}월
+      </button>
 
-  const year=Number(m[1]);
-  const month=Number(m[2]);
-  const day=Number(m[3]);
+    `).join("")}
 
-  const start=Date.UTC(year,month-1,day);
-
-  const end=m[5]
-    ?Date.UTC(
-        Number(m[4]||year),
-        Number(m[5])-1,
-        Number(m[6])
-      )
-    :start;
-
-  const result=[];
-
-  for(let t=start;t<=end;t+=86400000){
-
-    result.push(
-      new Date(t)
-        .toISOString()
-        .slice(0,10)
-        .replaceAll("-",".")
-    );
-
-  }
-
-  return result;
-}
-
-
-/* =========================
-   곡선 경로
-========================= */
-
-function makeCurve(a,b,index){
-
-  const dx=b[0]-a[0];
-  const dy=b[1]-a[1];
-
-  const dist=Math.hypot(dx,dy);
-
-  /* 같은 도시 연속 공연 */
-
-  if(dist<3){
-
-    return `
-      M${a[0]},${a[1]}
-      c-35,-55 40,-60 4,0
-    `;
-
-  }
-
-  /* 일반 이동 경로 */
-
-  const bend=
-    Math.min(100,dist*.24)*
-    (index%2?1:-1);
-
-  const mx=(a[0]+b[0])/2;
-  const my=(a[1]+b[1])/2;
-
-  const nx=-dy/dist;
-  const ny=dx/dist;
-
-  return `
-    M${a[0]},${a[1]}
-    Q${mx+nx*bend},${my+ny*bend}
-    ${b[0]},${b[1]}
   `;
 
 }
 
 
-/* =========================
-   데이터 불러오기
-========================= */
+/* 월 선택 */
 
-async function init(){
+function fm(m,b){
 
-  try{
+  month=m;
 
-    const [source,topology]=await Promise.all([
+  document
+    .querySelectorAll(".month-filters button")
+    .forEach(x=>x.classList.remove("on"));
 
-      fetch(
-        "https://raw.githubusercontent.com/ybrstar/yb-setlist/main/index.html"
-      ).then(r=>{
-        if(!r.ok)throw Error("아카이브 연결 실패");
-        return r.text();
-      }),
+  b.classList.add("on");
 
-      fetch(
-        "https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-topo-simple.json"
-      ).then(r=>{
-        if(!r.ok)throw Error("지도 연결 실패");
-        return r.json();
-      })
+  draw();
 
-    ]);
+}
+
+/* 공연 정렬 */
+
+function changeSort(order,b){
+
+  sortOrder=order;
+
+  document
+    .querySelectorAll(".sort-buttons button")
+    .forEach(x=>x.classList.remove("on"));
+
+  b.classList.add("on");
+
+  draw();
+
+}
+/* 메인 공연 목록 */
+
+function draw(){
+
+  const k=q.value.toLowerCase();
+
+  list.innerHTML="";
+
+  const sortedData=[...data].sort((a,b)=>
+  sortOrder==="old"
+    ? dateKey(a)-dateKey(b)
+    : dateKey(b)-dateKey(a)
+);
+
+sortedData.forEach((x)=>{
+
+    const searchText=(
+      x[0]+" "+
+      x[1]+" "+
+      x[2]+" "+
+      x[3]+" "+
+      x[4]+" "+
+      x[6].join(" ")
+    ).toLowerCase();
 
 
-    /* 아카이브 공연 데이터 */
+    const monthMatch=
+      x[0].match(/^\d{4}\.(\d{2})/);
 
-    const match=source.match(
-      /const data\s*=\s*(\[[\s\S]*?\n\];)/
-    );
+    const performanceMonth=
+      monthMatch
+        ? Number(monthMatch[1])
+        : null;
 
-    if(!match){
-      throw Error("공연 데이터를 찾지 못했습니다.");
+
+    if(
+      (type==="전체" || x[4]===type)
+      &&
+      (month==="전체" || performanceMonth===month)
+      &&
+      searchText.includes(k)
+    ){
+
+      list.innerHTML+=`
+        <div class="card" onclick="openC(${data.indexOf(x)})">
+
+          <div class="date">
+            ${x[0]}
+          </div>
+
+          <h3>
+            ${x[1]}
+          </h3>
+
+          <p>
+            ${x[2]} · ${x[3]} · ${x[4]}
+          </p>
+${x[7] ? `<div class="status">${x[7]}</div>` : ""}
+        </div>
+      `;
+
     }
 
-    const records=Function(
-      "return "+match[1].slice(0,-1)
-    )();
+  });
 
 
-    /* YB 공연만 추출 */
+  if(!list.innerHTML){
 
-    const missing=new Set();
+    list.innerHTML=
+      '<p class="empty">검색 결과가 없습니다.</p>';
 
-    for(const row of records){
+  }
 
-      const [
-        date,
-        title,
-        region,
-        venue,
-        type
-      ]=row;
+}
 
-      if(/윤허안|윤도현/.test(title+" "+type)){
-        continue;
+
+/* 공연 종류 선택 */
+
+function ft(t,b){
+
+  type=t;
+
+  document
+    .querySelectorAll(".filters button")
+    .forEach(x=>x.classList.remove("on"));
+
+  b.classList.add("on");
+
+  draw();
+
+  }
+
+/* 공연 상세 */
+
+function openC(i){
+
+  const x=data[i];
+
+  hideAll();
+
+  detail.style.display="block";
+
+  dd.innerText=x[0];
+  dt.innerText=x[1];
+
+  dm.innerHTML=
+    `${x[2]}<br>${x[3]} · ${x[4]}`;
+
+  performanceImage.src=x[5];
+
+  if(x[6].length === 0){
+
+  songs.innerHTML=`
+    <div class="empty">
+      셋리스트 확인 중
+    </div>
+  `;
+
+}else if(x[7] === "순서 미확인"){
+
+  songs.innerHTML=`
+    <div class="setlist-order-note">
+      ※ 곡 목록 확인 · 공연 순서 미확인
+    </div>
+
+    ${x[6]
+      .map(s=>`
+        <div class="song">
+
+          <div class="song-num">
+            —
+          </div>
+
+          <div class="song-name">
+            ${s}
+          </div>
+
+        </div>
+      `)
+      .join("")}
+  `;
+
+}else{
+
+  songs.innerHTML=
+    x[6]
+      .map((s,n)=>`
+        <div class="song">
+
+          <div class="song-num">
+            ${String(n+1).padStart(2,"0")}
+          </div>
+
+          <div class="song-name">
+            ${s}
+          </div>
+
+        </div>
+      `)
+      .join("");
+
+  }
+  if(x[8]){
+  songs.innerHTML += `
+    <div class="exit-song-title">퇴장곡</div>
+    <div class="song">
+      <div class="song-num">—</div>
+      <div class="song-name">${x[8]}</div>
+    </div>
+  `;
+  }
+const prevBtn = document.getElementById("prevPerformance");
+const nextBtn = document.getElementById("nextPerformance");
+
+prevBtn.onclick = () => {
+  if(i > 0) openC(i - 1);
+};
+
+nextBtn.onclick = () => {
+  if(i < data.length - 1) openC(i + 1);
+};
+  window.scrollTo(0,0);
+
+}
+
+
+/* 메인으로 */
+
+function goHome(){
+
+  hideAll();
+
+  home.style.display="block";
+
+  window.scrollTo(0,0);
+
+}
+
+
+/* 곡별 횟수 계산 */
+
+function getSongStats(){
+
+  const counts={};
+
+  data.forEach(show=>{
+
+    /*
+    같은 공연 안에 혹시 같은 곡이 두 번 적혀 있어도
+    공연 횟수는 1회로 계산
+    */
+
+    const uniqueSongs=new Set(show[6]);
+
+    uniqueSongs.forEach(song=>{
+
+      if(!counts[song]){
+        counts[song]=0;
       }
 
-      const city=cityKey(region);
-      const location=coords[city];
-
-      if(!location){
-
-        missing.add(region);
-        continue;
-
-      }
-
-      for(const day of dates(date)){
-
-        if(day>END)continue;
-
-        shows.push({
-          date:day,
-          title,
-          region,
-          city,
-          location
-        });
-
-      }
-
-    }
-
-    shows.sort((a,b)=>
-      a.date.localeCompare(b.date)||
-      a.title.localeCompare(b.title)
-    );
-
-    if(!shows.length){
-      throw Error("표시할 공연이 없습니다.");
-    }
-
-
-    /* 지도 생성 */
-
-    const geo=topojson.feature(
-      topology,
-      topology.objects[
-        Object.keys(topology.objects)[0]
-      ]
-    );
-
-    projection=d3.geoMercator()
-      .fitExtent(
-        [[105,330],[795,1320]],
-        geo
-      );
-
-    const path=d3.geoPath(projection);
-
-    const land=document.getElementById("land");
-
-    const features=geo.features||[geo];
-
-    features.forEach(f=>{
-
-      el("path",{
-        d:path(f),
-        fill:"#252525",
-        stroke:"#555",
-        "stroke-width":"1.4"
-      },land);
+      counts[song]++;
 
     });
 
+  });
 
-    /* 공연 경로 생성 */
+  return Object.entries(counts)
+    .sort((a,b)=>{
 
-    const routeLayer=
-      document.getElementById("routes");
-
-    const dotLayer=
-      document.getElementById("dots");
-
-
-    shows.forEach((s,i)=>{
-
-      s.xy=projection(s.location);
-
-      const dot=el("circle",{
-
-        cx:s.xy[0],
-        cy:s.xy[1],
-        r:5,
-        fill:"#ff3045",
-        opacity:0
-
-      },dotLayer);
-
-      dots.push(dot);
-
-
-      if(i===0){
-
-        segments.push(null);
-        return;
-
+      if(b[1]!==a[1]){
+        return b[1]-a[1];
       }
 
-      const d=makeCurve(
-        shows[i-1].xy,
-        s.xy,
-        i
-      );
+      return a[0].localeCompare(b[0],"ko");
 
-      const line=el("path",{
+    });
 
-        d,
-        fill:"none",
-        stroke:"#ff3045",
-        "stroke-width":3.2,
-        "stroke-linecap":"round",
-        opacity:0
+}
 
-      },routeLayer);
 
-      const length=line.getTotalLength();
+/* 곡별 통계 화면 */
 
-      line.style.strokeDasharray=length;
-      line.style.strokeDashoffset=length;
+function openSongStats(){
 
-      segments.push({
-        line,
-        length
+  hideAll();
+
+  songStats.style.display="block";
+
+  const stats=getSongStats();
+
+  songRanking.innerHTML=
+    stats.map((x,i)=>`
+
+      <div
+        class="song-rank"
+        onclick='openSongDetail(${JSON.stringify(x[0])})'
+      >
+
+        <div class="rank-num">
+          ${String(i+1).padStart(2,"0")}
+        </div>
+
+        <div class="rank-name">
+          ${x[0]}
+        </div>
+
+        <div class="rank-count">
+          ${x[1]}회
+        </div>
+
+      </div>
+
+    `).join("");
+
+  window.scrollTo(0,0);
+
+}
+
+
+/* 특정 곡 → 부른 공연들 */
+
+function openSongDetail(song){
+
+  hideAll();
+
+  songDetail.style.display="block";
+
+  const performances=[];
+
+  data.forEach((x,i)=>{
+
+    if(x[6].includes(song)){
+
+      performances.push({
+        index:i,
+        data:x
       });
 
-    });
-
-
-    let msg=`YB 공연 ${shows.length}회 · 2026.01.03 ~ 10.17`;
-
-    if(missing.size){
-      msg+=` · 좌표 미등록: ${[...missing].join(", ")}`;
     }
-
-    document.getElementById("message")
-      .textContent=msg;
-
-    replay();
-
-  }
-
-  catch(err){
-
-    document.getElementById("message")
-      .textContent="오류: "+err.message;
-
-    console.error(err);
-
-  }
-
-}
-
-
-/* =========================
-   공연 정보 표시
-========================= */
-
-function showInfo(index){
-
-  const s=shows[index];
-
-  if(!s)return;
-
-  document.getElementById("date")
-    .textContent=s.date;
-
-  document.getElementById("city")
-    .textContent=s.city.toUpperCase();
-
-  document.getElementById("event")
-    .textContent=s.title;
-
-  document.getElementById("count")
-    .textContent=
-      String(index+1).padStart(2,"0");
-
-}
-
-
-/* =========================
-   인트로 타이핑
-========================= */
-
-function renderIntro(t){
-
-  const year="2026";
-  const title="YB ROAD";
-
-  const yearCount=Math.min(
-    year.length,
-    Math.floor(t/140)
-  );
-
-  document.getElementById("introYear")
-    .textContent=year.slice(0,yearCount);
-
-
-  const titleTime=Math.max(0,t-900);
-
-  const titleCount=Math.min(
-    title.length,
-    Math.floor(titleTime/115)
-  );
-
-  document.getElementById("introText")
-    .textContent=title.slice(0,titleCount);
-
-
-  document.getElementById("introDot")
-    .textContent=
-      titleCount===title.length?".":"";
-
-
-  /* 지도 전환 */
-
-  const intro=document.getElementById("intro");
-
-  const mapScreen=document.getElementById("mapScreen");
-
-  if(t>=2600){
-
-    intro.style.opacity="0";
-    mapScreen.style.opacity="1";
-
-  }else{
-
-    intro.style.opacity="1";
-    mapScreen.style.opacity="0";
-
-  }
-
-  intro.style.pointerEvents=
-    t>=INTRO?"none":"auto";
-
-}
-
-
-/* =========================
-   지도 애니메이션
-========================= */
-
-function render(t){
-
-  renderIntro(t);
-
-  if(t<INTRO)return;
-
-
-  const progress=Math.max(
-    0,
-    Math.min(
-      1,
-      (t-INTRO)/TRAVEL
-    )
-  );
-
-
-  const position=
-    progress*(shows.length-1);
-
-  const index=Math.floor(position);
-
-  const fraction=position-index;
-
-
-  /* 공연 지점 표시 */
-
-  dots.forEach((dot,i)=>{
-
-    dot.setAttribute(
-      "opacity",
-      i<=index?1:0
-    );
 
   });
 
+  selectedSong.innerText=song;
 
-  /* 곡선 그리기 */
+  selectedCount.innerText=
+    `${performances.length}회 공연`;
 
-  segments.forEach((seg,i)=>{
+  songPerformances.innerHTML=
+    performances.map(p=>{
 
-    if(!seg)return;
+      const x=p.data;
 
-    let visible=0;
+      return `
+        <div
+          class="song-performance"
+          onclick="openC(${p.index})"
+        >
 
-    if(i<=index){
-      visible=1;
-    }
+          <div class="sp-date">
+            ${x[0]}
+          </div>
 
-    else if(i===index+1){
-      visible=fraction;
-    }
+          <h3>
+            ${x[1]}
+          </h3>
 
-    seg.line.setAttribute(
-      "opacity",
-      visible>0?.72:0
-    );
+          <p>
+            ${x[2]} · ${x[3]}
+          </p>
 
-    seg.line.style.strokeDashoffset=
-      seg.length*(1-visible);
+        </div>
+      `;
 
-  });
+    }).join("");
 
-
-  /* 현재 이동 위치 */
-
-  let point=
-    shows[Math.min(index,shows.length-1)].xy;
-
-
-  if(index<shows.length-1&&fraction>0){
-
-    const seg=segments[index+1];
-
-    const p=seg.line.getPointAtLength(
-      seg.length*fraction
-    );
-
-    point=[p.x,p.y];
-
-  }
-
-
-  /* 빨간 점 빛나는 효과 */
-
-  const pulse=Math.sin(t/140)*4;
-
-  for(const [id,r] of [
-    ["active",10],
-    ["halo",23]
-  ]){
-
-    const node=document.getElementById(id);
-
-    node.setAttribute("cx",point[0]);
-    node.setAttribute("cy",point[1]);
-    node.setAttribute("r",r+pulse);
-
-    node.setAttribute(
-      "opacity",
-      id==="halo"?.2:1
-    );
-
-  }
-
-
-  /* 공연 정보 업데이트 */
-
-  const current=Math.min(
-    shows.length-1,
-    index+(fraction>.5?1:0)
-  );
-
-  if(current!==lastIndex){
-
-    showInfo(current);
-    lastIndex=current;
-
-  }
-
-
-  /* 진행 바 */
-
-  document.getElementById("bar")
-    .style.width=(progress*100)+"%";
-
-
-  /* 마지막 장면 */
-
-  if(t>=INTRO+TRAVEL){
-
-    document.getElementById("date")
-      .textContent=
-        "2026.01.03 — 2026.10.17";
-
-    document.getElementById("city")
-      .textContent=
-        "2026 YB ROAD.";
-
-    document.getElementById("event")
-      .textContent=
-        `${shows.length} SHOWS · ${
-          new Set(shows.map(s=>s.city)).size
-        } CITIES`;
-
-    document.getElementById("count")
-      .textContent=
-        String(shows.length).padStart(2,"0");
-
-  }
+  window.scrollTo(0,0);
 
 }
 
 
-/* =========================
-   재생
-========================= */
+/* 검색 */
 
-function tick(now){
-
-  const t=Math.min(
-    TOTAL,
-    now-started
-  );
-
-  render(t);
-
-  if(t<TOTAL){
-
-    raf=requestAnimationFrame(tick);
-
-  }
-
-}
+q.oninput=draw;
 
 
-/* =========================
-   다시 재생
-========================= */
+/* 상단 숫자 자동 계산 */
 
-function replay(){
+cc.innerText=data.length;
 
-  if(!shows.length)return;
-
-  cancelAnimationFrame(raf);
-
-  lastIndex=-1;
-
-  document.getElementById("intro")
-    .style.opacity="1";
-
-  document.getElementById("mapScreen")
-    .style.opacity="0";
-
-  document.getElementById("introYear")
-    .textContent="";
-
-  document.getElementById("introText")
-    .textContent="";
-
-  document.getElementById("introDot")
-    .textContent="";
-
-  document.getElementById("bar")
-    .style.width="0%";
-
-  document.getElementById("count")
-    .textContent="00";
-
-  started=performance.now();
-
-  raf=requestAnimationFrame(tick);
-
-}
-
-
-/* =========================
-   전체화면
-========================= */
-
-function fullscreen(){
-
-  const stage=document.getElementById("stage");
-
-  if(stage.requestFullscreen){
-
-    stage.requestFullscreen();
-
-  }
-
-}
+sc.innerText=
+  new Set(
+    data.flatMap(x=>x[6])
+  ).size;
 
 
 /* 시작 */
 
-init();
+makeMonthFilters();
+draw();
 
 </script>
 
 </body>
-</html>
+  </html>
