@@ -66,3 +66,1051 @@ body{
   white-space:nowrap;
   line-height:1.3;
 }
+
+#introDot{
+  color:#ff3045;
+}
+
+.cursor{
+  display:inline-block;
+  width:4px;
+  height:45px;
+  background:#ff3045;
+  vertical-align:middle;
+  margin-left:5px;
+  animation:blink .65s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0}
+}
+
+/* 지도 화면 */
+
+#mapScreen{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity .8s ease;
+  background:
+    radial-gradient(
+      ellipse at 50% 55%,
+      #191919,
+      #080808 75%
+    );
+}
+
+svg{
+  width:100%;
+  height:100%;
+  position:absolute;
+  inset:0;
+}
+
+/* 상단 제목 */
+
+.top{
+  position:absolute;
+  top:7%;
+  left:8%;
+  z-index:2;
+}
+
+.eyebrow{
+  color:#ff3045;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:3px;
+}
+
+h1{
+  margin:13px 0 0;
+  font-size:clamp(30px,8vw,41px);
+  line-height:1.05;
+  letter-spacing:-1.8px;
+}
+
+h1 span{
+  color:#ff3045;
+}
+
+/* 공연 횟수 */
+
+.counter{
+  position:absolute;
+  right:8%;
+  top:19%;
+  text-align:right;
+  z-index:2;
+}
+
+.counter strong{
+  display:block;
+  font-size:42px;
+  font-weight:900;
+  color:#ff3045;
+  line-height:1;
+}
+
+.counter small{
+  font-size:10px;
+  letter-spacing:2px;
+  color:#999;
+}
+
+/* 공연 정보 */
+
+.info{
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:10%;
+  z-index:2;
+  min-height:105px;
+  padding:17px 18px;
+  background:rgba(14,14,14,.94);
+  border-left:3px solid #ff3045;
+}
+
+#date{
+  color:#ff3045;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+#city{
+  margin-top:6px;
+  font-size:25px;
+  font-weight:900;
+}
+
+#event{
+  margin-top:7px;
+  font-size:12px;
+  color:#aaa;
+  line-height:1.5;
+}
+
+/* 진행 바 */
+
+.progress{
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:6%;
+  height:2px;
+  background:#303030;
+}
+
+#bar{
+  width:0%;
+  height:100%;
+  background:#ff3045;
+}
+
+.footer{
+  position:absolute;
+  bottom:2%;
+  width:100%;
+  text-align:center;
+  font-size:9px;
+  color:#555;
+  letter-spacing:2px;
+}
+
+/* 버튼 */
+
+.controls{
+  padding:20px;
+  display:flex;
+  gap:10px;
+}
+
+button{
+  background:#ff3045;
+  color:white;
+  border:0;
+  padding:13px 20px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button.secondary{
+  background:#252525;
+}
+
+#message{
+  color:#888;
+  font-size:12px;
+  padding:10px;
+  text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="stage">
+
+  <!-- 인트로 -->
+
+  <div id="intro">
+    <div class="intro-inner">
+
+      <div id="introYear"></div>
+
+      <div class="intro-title">
+        <span id="introText"></span><span id="introDot"></span><span class="cursor"></span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 지도 애니메이션 -->
+
+  <div id="mapScreen">
+
+    <svg id="map" viewBox="0 0 900 1600">
+
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="7"/>
+        </filter>
+      </defs>
+
+      <g id="land"></g>
+      <g id="routes"></g>
+      <g id="dots"></g>
+
+      <circle
+        id="halo"
+        fill="#ff3045"
+        opacity="0"
+      />
+
+      <circle
+        id="active"
+        fill="#ff3045"
+        opacity="0"
+      />
+
+    </svg>
+
+    <div class="top">
+      <div class="eyebrow">
+        2026 YB PERFORMANCE
+      </div>
+
+      <h1>
+        YB<br>
+        <span>ROAD.</span>
+      </h1>
+    </div>
+
+    <div class="counter">
+      <strong id="count">00</strong>
+      <small>LIVE SHOWS</small>
+    </div>
+
+    <div class="info">
+      <div id="date">
+        2026.01.03 — 2026.10.17
+      </div>
+
+      <div id="city">
+        YB ON THE ROAD
+      </div>
+
+      <div id="event">
+        2026년, 우리가 지나온 무대들
+      </div>
+    </div>
+
+    <div class="progress">
+      <div id="bar"></div>
+    </div>
+
+    <div class="footer">
+      UNOFFICIAL YB PERFORMANCE ARCHIVE
+    </div>
+
+  </div>
+
+</div>
+
+<div class="controls">
+  <button onclick="replay()">
+    ▶ 다시 재생
+  </button>
+
+  <button class="secondary" onclick="fullscreen()">
+    전체화면
+  </button>
+</div>
+
+<div id="message">
+  공연 데이터를 불러오는 중...
+</div>
+
+<script>
+
+/* =========================
+   기본 설정
+========================= */
+
+const END="2026.10.17";
+
+const INTRO=3200;
+const TRAVEL=32000;
+const OUTRO=4000;
+
+const TOTAL=INTRO+TRAVEL+OUTRO;
+
+
+/* =========================
+   도시 좌표
+========================= */
+
+const coords={
+
+  서울:[126.978,37.566],
+  인천:[126.705,37.456],
+  수원:[127.029,37.263],
+  화성:[126.832,37.200],
+  용인:[127.177,37.241],
+  안양:[126.956,37.394],
+  안성:[127.279,37.008],
+  과천:[126.987,37.429],
+  고양:[126.832,37.658],
+  파주:[126.780,37.760],
+  의정부:[127.047,37.738],
+  동두천:[127.061,37.904],
+  이천:[127.443,37.272],
+
+  강릉:[128.876,37.752],
+  원주:[127.946,37.342],
+  삼척:[129.165,37.450],
+  춘천:[127.730,37.881],
+
+  대전:[127.384,36.350],
+  세종:[127.289,36.480],
+  천안:[127.153,36.815],
+  아산:[127.004,36.789],
+  공주:[127.120,36.446],
+  계룡:[127.248,36.275],
+  보령:[126.613,36.333],
+  청주:[127.489,36.642],
+  괴산:[127.786,36.815],
+  영동:[127.775,36.175],
+
+  광주:[126.852,35.160],
+  담양:[126.989,35.321],
+  장성:[126.785,35.301],
+  순천:[127.489,34.950],
+  곡성:[127.292,35.282],
+  전주:[127.148,35.824],
+
+  대구:[128.602,35.872],
+  포항:[129.365,36.019],
+  의성:[128.697,36.353],
+  부산:[129.075,35.180],
+  울산:[129.311,35.539],
+  함양:[127.725,35.520],
+
+  제주:[126.532,33.500],
+  서귀포:[126.560,33.254]
+
+};
+
+
+/* =========================
+   변수
+========================= */
+
+let shows=[];
+let segments=[];
+let dots=[];
+
+let projection;
+
+let started=0;
+let raf=0;
+let lastIndex=-1;
+
+const NS="http://www.w3.org/2000/svg";
+
+
+/* =========================
+   SVG 생성
+========================= */
+
+function el(tag,attrs,parent){
+
+  const node=document.createElementNS(NS,tag);
+
+  for(const [k,v] of Object.entries(attrs)){
+    node.setAttribute(k,v);
+  }
+
+  parent.appendChild(node);
+
+  return node;
+}
+
+
+/* =========================
+   지역명 추출
+========================= */
+
+function cityKey(region){
+
+  const p=region.trim().split(/\s+/);
+
+  const metro=[
+    "서울","인천","광주",
+    "대구","대전","부산",
+    "울산","세종","제주"
+  ];
+
+  if(metro.includes(p[0])){
+    return p[0];
+  }
+
+  return p[p.length-1];
+}
+
+
+/* =========================
+   공연 날짜 분리
+========================= */
+
+function dates(str){
+
+  const m=str.match(
+    /^(\d{4})\.(\d{2})\.(\d{2})(?:\s*-\s*(?:(\d{4})\.)?(\d{2})\.(\d{2}))?/
+  );
+
+  if(!m)return [];
+
+  const year=Number(m[1]);
+  const month=Number(m[2]);
+  const day=Number(m[3]);
+
+  const start=Date.UTC(year,month-1,day);
+
+  const end=m[5]
+    ?Date.UTC(
+        Number(m[4]||year),
+        Number(m[5])-1,
+        Number(m[6])
+      )
+    :start;
+
+  const result=[];
+
+  for(let t=start;t<=end;t+=86400000){
+
+    result.push(
+      new Date(t)
+        .toISOString()
+        .slice(0,10)
+        .replaceAll("-",".")
+    );
+
+  }
+
+  return result;
+}
+
+
+/* =========================
+   곡선 경로
+========================= */
+
+function makeCurve(a,b,index){
+
+  const dx=b[0]-a[0];
+  const dy=b[1]-a[1];
+
+  const dist=Math.hypot(dx,dy);
+
+  /* 같은 도시 연속 공연 */
+
+  if(dist<3){
+
+    return `
+      M${a[0]},${a[1]}
+      c-35,-55 40,-60 4,0
+    `;
+
+  }
+
+  /* 일반 이동 경로 */
+
+  const bend=
+    Math.min(100,dist*.24)*
+    (index%2?1:-1);
+
+  const mx=(a[0]+b[0])/2;
+  const my=(a[1]+b[1])/2;
+
+  const nx=-dy/dist;
+  const ny=dx/dist;
+
+  return `
+    M${a[0]},${a[1]}
+    Q${mx+nx*bend},${my+ny*bend}
+    ${b[0]},${b[1]}
+  `;
+
+}
+
+
+/* =========================
+   데이터 불러오기
+========================= */
+
+async function init(){
+
+  try{
+
+    const [source,topology]=await Promise.all([
+
+      fetch(
+        "https://raw.githubusercontent.com/ybrstar/yb-setlist/main/index.html"
+      ).then(r=>{
+        if(!r.ok)throw Error("아카이브 연결 실패");
+        return r.text();
+      }),
+
+      fetch(
+        "https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-topo-simple.json"
+      ).then(r=>{
+        if(!r.ok)throw Error("지도 연결 실패");
+        return r.json();
+      })
+
+    ]);
+
+
+    /* 아카이브 공연 데이터 */
+
+    const match=source.match(
+      /const data\s*=\s*(\[[\s\S]*?\n\];)/
+    );
+
+    if(!match){
+      throw Error("공연 데이터를 찾지 못했습니다.");
+    }
+
+    const records=Function(
+      "return "+match[1].slice(0,-1)
+    )();
+
+
+    /* YB 공연만 추출 */
+
+    const missing=new Set();
+
+    for(const row of records){
+
+      const [
+        date,
+        title,
+        region,
+        venue,
+        type
+      ]=row;
+
+      if(/윤허안|윤도현/.test(title+" "+type)){
+        continue;
+      }
+
+      const city=cityKey(region);
+      const location=coords[city];
+
+      if(!location){
+
+        missing.add(region);
+        continue;
+
+      }
+
+      for(const day of dates(date)){
+
+        if(day>END)continue;
+
+        shows.push({
+          date:day,
+          title,
+          region,
+          city,
+          location
+        });
+
+      }
+
+    }
+
+    shows.sort((a,b)=>
+      a.date.localeCompare(b.date)||
+      a.title.localeCompare(b.title)
+    );
+
+    if(!shows.length){
+      throw Error("표시할 공연이 없습니다.");
+    }
+
+
+    /* 지도 생성 */
+
+    const geo=topojson.feature(
+      topology,
+      topology.objects[
+        Object.keys(topology.objects)[0]
+      ]
+    );
+
+    projection=d3.geoMercator()
+      .fitExtent(
+        [[105,330],[795,1320]],
+        geo
+      );
+
+    const path=d3.geoPath(projection);
+
+    const land=document.getElementById("land");
+
+    const features=geo.features||[geo];
+
+    features.forEach(f=>{
+
+      el("path",{
+        d:path(f),
+        fill:"#252525",
+        stroke:"#555",
+        "stroke-width":"1.4"
+      },land);
+
+    });
+
+
+    /* 공연 경로 생성 */
+
+    const routeLayer=
+      document.getElementById("routes");
+
+    const dotLayer=
+      document.getElementById("dots");
+
+
+    shows.forEach((s,i)=>{
+
+      s.xy=projection(s.location);
+
+      const dot=el("circle",{
+
+        cx:s.xy[0],
+        cy:s.xy[1],
+        r:5,
+        fill:"#ff3045",
+        opacity:0
+
+      },dotLayer);
+
+      dots.push(dot);
+
+
+      if(i===0){
+
+        segments.push(null);
+        return;
+
+      }
+
+      const d=makeCurve(
+        shows[i-1].xy,
+        s.xy,
+        i
+      );
+
+      const line=el("path",{
+
+        d,
+        fill:"none",
+        stroke:"#ff3045",
+        "stroke-width":3.2,
+        "stroke-linecap":"round",
+        opacity:0
+
+      },routeLayer);
+
+      const length=line.getTotalLength();
+
+      line.style.strokeDasharray=length;
+      line.style.strokeDashoffset=length;
+
+      segments.push({
+        line,
+        length
+      });
+
+    });
+
+
+    let msg=`YB 공연 ${shows.length}회 · 2026.01.03 ~ 10.17`;
+
+    if(missing.size){
+      msg+=` · 좌표 미등록: ${[...missing].join(", ")}`;
+    }
+
+    document.getElementById("message")
+      .textContent=msg;
+
+    replay();
+
+  }
+
+  catch(err){
+
+    document.getElementById("message")
+      .textContent="오류: "+err.message;
+
+    console.error(err);
+
+  }
+
+}
+
+
+/* =========================
+   공연 정보 표시
+========================= */
+
+function showInfo(index){
+
+  const s=shows[index];
+
+  if(!s)return;
+
+  document.getElementById("date")
+    .textContent=s.date;
+
+  document.getElementById("city")
+    .textContent=s.city.toUpperCase();
+
+  document.getElementById("event")
+    .textContent=s.title;
+
+  document.getElementById("count")
+    .textContent=
+      String(index+1).padStart(2,"0");
+
+}
+
+
+/* =========================
+   인트로 타이핑
+========================= */
+
+function renderIntro(t){
+
+  const year="2026";
+  const title="YB ROAD";
+
+  const yearCount=Math.min(
+    year.length,
+    Math.floor(t/140)
+  );
+
+  document.getElementById("introYear")
+    .textContent=year.slice(0,yearCount);
+
+
+  const titleTime=Math.max(0,t-900);
+
+  const titleCount=Math.min(
+    title.length,
+    Math.floor(titleTime/115)
+  );
+
+  document.getElementById("introText")
+    .textContent=title.slice(0,titleCount);
+
+
+  document.getElementById("introDot")
+    .textContent=
+      titleCount===title.length?".":"";
+
+
+  /* 지도 전환 */
+
+  const intro=document.getElementById("intro");
+
+  const mapScreen=document.getElementById("mapScreen");
+
+  if(t>=2600){
+
+    intro.style.opacity="0";
+    mapScreen.style.opacity="1";
+
+  }else{
+
+    intro.style.opacity="1";
+    mapScreen.style.opacity="0";
+
+  }
+
+  intro.style.pointerEvents=
+    t>=INTRO?"none":"auto";
+
+}
+
+
+/* =========================
+   지도 애니메이션
+========================= */
+
+function render(t){
+
+  renderIntro(t);
+
+  if(t<INTRO)return;
+
+
+  const progress=Math.max(
+    0,
+    Math.min(
+      1,
+      (t-INTRO)/TRAVEL
+    )
+  );
+
+
+  const position=
+    progress*(shows.length-1);
+
+  const index=Math.floor(position);
+
+  const fraction=position-index;
+
+
+  /* 공연 지점 표시 */
+
+  dots.forEach((dot,i)=>{
+
+    dot.setAttribute(
+      "opacity",
+      i<=index?1:0
+    );
+
+  });
+
+
+  /* 곡선 그리기 */
+
+  segments.forEach((seg,i)=>{
+
+    if(!seg)return;
+
+    let visible=0;
+
+    if(i<=index){
+      visible=1;
+    }
+
+    else if(i===index+1){
+      visible=fraction;
+    }
+
+    seg.line.setAttribute(
+      "opacity",
+      visible>0?.72:0
+    );
+
+    seg.line.style.strokeDashoffset=
+      seg.length*(1-visible);
+
+  });
+
+
+  /* 현재 이동 위치 */
+
+  let point=
+    shows[Math.min(index,shows.length-1)].xy;
+
+
+  if(index<shows.length-1&&fraction>0){
+
+    const seg=segments[index+1];
+
+    const p=seg.line.getPointAtLength(
+      seg.length*fraction
+    );
+
+    point=[p.x,p.y];
+
+  }
+
+
+  /* 빨간 점 빛나는 효과 */
+
+  const pulse=Math.sin(t/140)*4;
+
+  for(const [id,r] of [
+    ["active",10],
+    ["halo",23]
+  ]){
+
+    const node=document.getElementById(id);
+
+    node.setAttribute("cx",point[0]);
+    node.setAttribute("cy",point[1]);
+    node.setAttribute("r",r+pulse);
+
+    node.setAttribute(
+      "opacity",
+      id==="halo"?.2:1
+    );
+
+  }
+
+
+  /* 공연 정보 업데이트 */
+
+  const current=Math.min(
+    shows.length-1,
+    index+(fraction>.5?1:0)
+  );
+
+  if(current!==lastIndex){
+
+    showInfo(current);
+    lastIndex=current;
+
+  }
+
+
+  /* 진행 바 */
+
+  document.getElementById("bar")
+    .style.width=(progress*100)+"%";
+
+
+  /* 마지막 장면 */
+
+  if(t>=INTRO+TRAVEL){
+
+    document.getElementById("date")
+      .textContent=
+        "2026.01.03 — 2026.10.17";
+
+    document.getElementById("city")
+      .textContent=
+        "2026 YB ROAD.";
+
+    document.getElementById("event")
+      .textContent=
+        `${shows.length} SHOWS · ${
+          new Set(shows.map(s=>s.city)).size
+        } CITIES`;
+
+    document.getElementById("count")
+      .textContent=
+        String(shows.length).padStart(2,"0");
+
+  }
+
+}
+
+
+/* =========================
+   재생
+========================= */
+
+function tick(now){
+
+  const t=Math.min(
+    TOTAL,
+    now-started
+  );
+
+  render(t);
+
+  if(t<TOTAL){
+
+    raf=requestAnimationFrame(tick);
+
+  }
+
+}
+
+
+/* =========================
+   다시 재생
+========================= */
+
+function replay(){
+
+  if(!shows.length)return;
+
+  cancelAnimationFrame(raf);
+
+  lastIndex=-1;
+
+  document.getElementById("intro")
+    .style.opacity="1";
+
+  document.getElementById("mapScreen")
+    .style.opacity="0";
+
+  document.getElementById("introYear")
+    .textContent="";
+
+  document.getElementById("introText")
+    .textContent="";
+
+  document.getElementById("introDot")
+    .textContent="";
+
+  document.getElementById("bar")
+    .style.width="0%";
+
+  document.getElementById("count")
+    .textContent="00";
+
+  started=performance.now();
+
+  raf=requestAnimationFrame(tick);
+
+}
+
+
+/* =========================
+   전체화면
+========================= */
+
+function fullscreen(){
+
+  const stage=document.getElementById("stage");
+
+  if(stage.requestFullscreen){
+
+    stage.requestFullscreen();
+
+  }
+
+}
+
+
+/* 시작 */
+
+init();
+
+</script>
+
+</body>
+  </html>
