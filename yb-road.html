@@ -125,7 +125,7 @@ svg{
   inset:0;
 }
 
-/* 지도 크기 */
+/* 지도 크기 유지 */
 
 #map{
   transform:scale(1);
@@ -189,7 +189,9 @@ h1 span{
 
 /* =========================
    재생 속도 버튼
-   제목 아래 왼쪽 배치
+
+   기존 위치 유지
+   전체 크기 축소
 ========================= */
 
 .speed-controls{
@@ -203,26 +205,28 @@ h1 span{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:7px;
 
-  padding:6px 8px;
+  gap:5px;
+
+  padding:4px 6px;
 
   background:rgba(12,12,12,.88);
+
   border:1px solid #333;
-  border-radius:8px;
+  border-radius:7px;
 
   white-space:nowrap;
 }
 
 .speed-controls span{
-  font-size:9px;
+  font-size:8px;
   color:#888;
-  letter-spacing:1px;
+  letter-spacing:.7px;
 }
 
 .speed-buttons{
   display:flex;
-  gap:5px;
+  gap:4px;
 }
 
 .speed-buttons button{
@@ -231,10 +235,10 @@ h1 span{
 
   border:1px solid #444;
 
-  padding:7px 9px;
-  border-radius:6px;
+  padding:5px 7px;
+  border-radius:5px;
 
-  font-size:11px;
+  font-size:10px;
   font-weight:700;
 
   cursor:pointer;
@@ -252,6 +256,7 @@ h1 span{
 
 .info{
   position:absolute;
+
   left:8%;
   right:8%;
   bottom:10%;
@@ -299,6 +304,7 @@ h1 span{
 
 .progress{
   position:absolute;
+
   left:8%;
   right:8%;
   bottom:6%;
@@ -335,7 +341,6 @@ h1 span{
 
 .controls{
   padding:20px;
-
   display:flex;
   gap:10px;
 }
@@ -644,8 +649,6 @@ const coords={
   괴산:[127.786,36.815],
   영동:[127.775,36.175],
 
-  /* 누락 좌표 추가 */
-
   서천:[126.693,36.077],
 
   충주:[127.925,36.991],
@@ -756,6 +759,52 @@ function el(tag,attrs,parent){
 
 
 /* =========================
+   지역명 정규화
+
+   대구 오류 해결
+========================= */
+
+function normalizeCity(token){
+
+  const raw=String(token||"")
+    .trim()
+    .replace(/[(),]/g,"");
+
+
+  /*
+     이미 등록된 도시라면
+     이름을 변경하지 않음
+
+     특히 대구의 마지막 '구'를
+     행정구역 접미사로 처리하지 않음
+  */
+
+  if(coords[raw]){
+
+    return raw;
+
+  }
+
+
+  /*
+     대구광역시 → 대구
+     대구시 → 대구
+     수원시 → 수원
+     서천군 → 서천
+  */
+
+  const cleaned=raw.replace(
+    /(특별자치시|특별자치도|광역시|특별시|자치시|시|군|구)$/,
+    ""
+  );
+
+
+  return cleaned;
+
+}
+
+
+/* =========================
    지역명 추출
 ========================= */
 
@@ -766,13 +815,16 @@ function cityKey(region){
     .split(/\s+/)
     .filter(Boolean);
 
-  const normalize=name=>
-    name.replace(
-      /(특별자치시|특별자치도|광역시|특별시|자치시|시|군|구)$/,
-      ""
-    );
 
-  const first=normalize(p[0]||"");
+  if(!p.length){
+
+    return "";
+
+  }
+
+
+  const first=normalizeCity(p[0]);
+
 
   const metro=[
     "서울",
@@ -787,11 +839,13 @@ function cityKey(region){
   ];
 
 
-  /* 경기도 광주와 광주광역시 구분 */
+  /* =====================
+     경기도 광주 구분
+  ===================== */
 
   if(
     /^(경기|경기도)$/.test(p[0]) &&
-    p.some(x=>normalize(x)==="광주")
+    p.some(x=>normalizeCity(x)==="광주")
   ){
 
     return "경기광주";
@@ -799,11 +853,13 @@ function cityKey(region){
   }
 
 
-  /* 제주 서귀포 구분 */
+  /* =====================
+     제주 서귀포 구분
+  ===================== */
 
   if(
     first==="제주" &&
-    p.some(x=>normalize(x)==="서귀포")
+    p.some(x=>normalizeCity(x)==="서귀포")
   ){
 
     return "서귀포";
@@ -811,7 +867,9 @@ function cityKey(region){
   }
 
 
-  /* 광역시 */
+  /* =====================
+     광역시 인식
+  ===================== */
 
   if(metro.includes(first)){
 
@@ -820,11 +878,13 @@ function cityKey(region){
   }
 
 
-  /* 일반 시군 */
+  /* =====================
+     일반 시군 인식
+  ===================== */
 
   for(const token of [...p].reverse()){
 
-    const name=normalize(token);
+    const name=normalizeCity(token);
 
     if(coords[name]){
 
@@ -835,8 +895,8 @@ function cityKey(region){
   }
 
 
-  return normalize(
-    p[p.length-1]||""
+  return normalizeCity(
+    p[p.length-1]
   );
 
 }
@@ -851,9 +911,11 @@ function dates(str){
   const normalized=String(str)
     .replace(/[–—~〜]/g,"-");
 
+
   const m=normalized.match(
     /^(\d{4})\.(\d{1,2})\.(\d{1,2})(?:\s*-\s*(?:(\d{4})\.)?(?:(\d{1,2})\.)?(\d{1,2}))?/
   );
+
 
   if(!m)return [];
 
@@ -1033,31 +1095,75 @@ function addIsland(name,location,land){
 
 
 /* =========================
-   작은 부속 섬 정리
+   부속 섬 정리
+
+   주요 섬은 유지하고
+   아주 작은 섬만 제외
 ========================= */
 
-function simplifyFeature(feature,path){
+/*
+   기존 기준 100은 너무 커서
+   대부분의 작은 섬이 사라졌음
+
+   이번에는 기준을 12로 낮춤
+
+   지도에 자연스럽게 섬들이
+   다시 표시되도록 수정
+*/
+
+const MIN_ISLAND_AREA=12;
+
+
+/* 투영된 다각형 면적 계산 */
+
+function polygonArea(polygon){
+
+  if(!polygon || !polygon.length){
+
+    return 0;
+
+  }
+
+
+  const ring=polygon[0];
+
+  if(!ring || ring.length<3){
+
+    return 0;
+
+  }
+
+
+  const points=ring.map(
+    coordinate=>projection(coordinate)
+  );
+
+
+  return Math.abs(
+    d3.polygonArea(points)
+  );
+
+}
+
+
+/* 작은 섬만 필터링 */
+
+function simplifyFeature(feature){
 
   const geometry=feature.geometry;
 
   if(!geometry)return null;
 
 
+  /* =====================
+     여러 섬으로 이루어진 지역
+  ===================== */
+
   if(geometry.type==="MultiPolygon"){
 
     const polygons=geometry.coordinates.filter(
-      polygon=>{
-
-        const area=path.area({
-
-          type:"Polygon",
-          coordinates:polygon
-
-        });
-
-        return area>=100;
-
-      }
+      polygon=>
+        polygonArea(polygon)>=MIN_ISLAND_AREA
     );
 
 
@@ -1077,6 +1183,7 @@ function simplifyFeature(feature,path){
       geometry:{
 
         type:"MultiPolygon",
+
         coordinates:polygons
 
       }
@@ -1086,11 +1193,18 @@ function simplifyFeature(feature,path){
   }
 
 
+  /* =====================
+     단일 다각형 지역
+  ===================== */
+
   if(geometry.type==="Polygon"){
 
-    const area=path.area(feature);
+    const area=polygonArea(
+      geometry.coordinates
+    );
 
-    if(area<100){
+
+    if(area<MIN_ISLAND_AREA){
 
       return null;
 
@@ -1215,6 +1329,8 @@ async function init(){
       const location=coords[city];
 
 
+      /* 좌표가 없는 지역 안내 */
+
       if(!location){
 
         missing.add(region);
@@ -1307,7 +1423,10 @@ async function init(){
     const features=geo.features||[geo];
 
 
-    /* 울릉도 독도를 지도 범위에 포함 */
+    /* =====================
+       울릉도와 독도를
+       지도 범위에 포함
+    ===================== */
 
     const extendedGeo={
 
@@ -1347,8 +1466,10 @@ async function init(){
     /* =====================
        지도 크기 및 위치
 
+       기존 최신 버전 유지
+
        제주도가 잘리지 않도록
-       전체 지도를 조금 축소
+       여유 공간 확보
     ===================== */
 
     projection=d3.geoMercator()
@@ -1370,16 +1491,13 @@ async function init(){
 
 
     /* =====================
-       육지 표시
-
-       작은 부속 섬 정리
+       육지 및 부속 섬 표시
     ===================== */
 
     features.forEach(feature=>{
 
       const simplified=simplifyFeature(
-        feature,
-        path
+        feature
       );
 
 
@@ -2357,4 +2475,4 @@ init();
 </script>
 
 </body>
-</html>
+   </html>
