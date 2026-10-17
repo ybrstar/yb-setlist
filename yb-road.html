@@ -403,7 +403,12 @@ button.secondary{
    기본 설정
 ========================= */
 
-const END="2026.10.17";
+const END = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(new Date()).replaceAll("-", ".");2026.10.17
 
 const INTRO=3200;
 const TRAVEL=32000;
@@ -1048,7 +1053,7 @@ function render(t){
 
     document.getElementById("date")
       .textContent=
-        "2026.01.03 — 2026.10.17";
+        "2026.01.03 — " + shows[shows.length - 1].date;
 
     document.getElementById("city")
       .textContent=
