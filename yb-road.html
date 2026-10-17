@@ -247,7 +247,40 @@ button.secondary{
   padding:10px;
   text-align:center;
 }
+.speed-controls{
+  padding:20px 10px 0;
+  text-align:center;
+}
 
+.speed-controls span{
+  display:block;
+  font-size:11px;
+  color:#888;
+  letter-spacing:2px;
+  margin-bottom:12px;
+}
+
+.speed-buttons{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.speed-buttons button{
+  background:#222;
+  color:#aaa;
+  border:1px solid #444;
+  padding:12px 22px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:700;
+}
+
+.speed-buttons button.active{
+  background:#ff3045;
+  color:white;
+  border-color:#ff3045;
+}
 </style>
 </head>
 
@@ -341,7 +374,16 @@ button.secondary{
 
 </div>
 
-<div class="controls">
+  <div class="speed-controls">
+  <span>PLAYBACK SPEED</span>
+
+  <div class="speed-buttons">
+    <button onclick="setSpeed(0.5, this)">0.5×</button>
+    <button class="active" onclick="setSpeed(1, this)">1.0×</button>
+    <button onclick="setSpeed(1.5, this)">1.5×</button>
+  </div>
+  </div>
+  <div class="controls">
   <button onclick="replay()">
     ▶ 다시 재생
   </button>
@@ -1031,12 +1073,13 @@ function render(t){
    재생
 ========================= */
 
+  let playbackSpeed = 1;
 function tick(now){
 
   const t=Math.min(
-    TOTAL,
-    now-started
-  );
+  TOTAL,
+  (now-started)*playbackSpeed
+);
 
   render(t);
 
@@ -1047,7 +1090,30 @@ function tick(now){
   }
 
 }
+function setSpeed(speed, button){
 
+  if(started > 0){
+
+    const now = performance.now();
+
+    const elapsed =
+      (now - started) * playbackSpeed;
+
+    started = now - elapsed / speed;
+
+  }
+
+  playbackSpeed = speed;
+
+  document.querySelectorAll(
+    ".speed-buttons button"
+  ).forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  button.classList.add("active");
+
+}
 
 /* =========================
    다시 재생
